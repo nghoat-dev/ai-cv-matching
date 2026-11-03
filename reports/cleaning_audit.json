@@ -1,0 +1,12 @@
+{
+  "initial_count": 93733,
+  "dropped_null_resume": 0,
+  "dropped_null_jd": 0,
+  "dropped_null_label": 0,
+  "dropped_empty_short_resume": 0,
+  "dropped_empty_short_jd": 0,
+  "dropped_invalid_label": 0,
+  "dropped_exact_duplicates": 0,
+  "dropped_conflicting_duplicates": 0,
+  "final_count": 93733
+}

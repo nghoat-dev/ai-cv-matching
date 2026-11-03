@@ -1,0 +1,89 @@
+{
+  "accuracy": 0.7715,
+  "macro_precision": 0.6416,
+  "macro_recall": 0.7562,
+  "macro_f1": 0.6789,
+  "weighted_f1": 0.7877,
+  "per_class": {
+    "No Fit": {
+      "precision": 0.9449,
+      "recall": 0.7946,
+      "f1": 0.8633,
+      "support": 13746
+    },
+    "Potential Fit": {
+      "precision": 0.4974,
+      "recall": 0.6641,
+      "f1": 0.5688,
+      "support": 3498
+    },
+    "Good Fit": {
+      "precision": 0.4825,
+      "recall": 0.8099,
+      "f1": 0.6047,
+      "support": 1494
+    }
+  },
+  "confusion_matrix": [
+    [
+      10923,
+      2111,
+      712
+    ],
+    [
+      589,
+      2323,
+      586
+    ],
+    [
+      48,
+      236,
+      1210
+    ]
+  ],
+  "error_cases": [
+    {
+      "index": 4,
+      "true_label": "Potential Fit",
+      "predicted_label": "Good Fit",
+      "resume_snippet": "summarystrong it experience in aws cloud computing bigdata data warehousing strong business domain knowledge in sales segmentation territory planning strong coding sql experience in python and redshif",
+      "jd_snippet": "we are looking for an experienced engineer who has participated in the entire software development life cycle and has knowledge of various architecture patterns and agile methodologies the ideal candi"
+    },
+    {
+      "index": 5,
+      "true_label": "Potential Fit",
+      "predicted_label": "Good Fit",
+      "resume_snippet": "summarysenior software engineer passionate about creating cutting edge products for enterprise level initiatives strong work ethic and dedicated to quality assurance adept at working with teams or ind",
+      "jd_snippet": "about the jobwe are seeking a senior full stack software engineer to build and scale business critical web products this is a unique opportunity to work alongside an experienced team that excels at bu"
+    },
+    {
+      "index": 7,
+      "true_label": "No Fit",
+      "predicted_label": "Potential Fit",
+      "resume_snippet": "summaryadaptable software engineer ready to support operations from conception through post release support skilled creator of efficient code and exciting user experiences eager to elevate ongoing dev",
+      "jd_snippet": "this internship is in person in omaha ne for the duration of the internship candidates will be expected to work approximately 20 hours per week during the school year milliman is an international cons"
+    },
+    {
+      "index": 8,
+      "true_label": "No Fit",
+      "predicted_label": "Potential Fit",
+      "resume_snippet": "professional profilehighly motivated sales associate with extensive customer service and sales experience outgoing sales professional with track record of driving increased sales improving buying expe",
+      "jd_snippet": "job role data analyst 1 open role location dallas tx candidate must be working at onsite duration long term note looking for candidates with strong sql and data warehousingetl experience telecom backg"
+    },
+    {
+      "index": 13,
+      "true_label": "Potential Fit",
+      "predicted_label": "Good Fit",
+      "resume_snippet": "summary hands on self motivated technology architect with over 10 years of experience deep programming acumen and the ability to rapidly design code implementdeep expertise and understand challenges a",
+      "jd_snippet": "company descriptionmtk technologies is a premier hr solutions and services organization providing quality skilled manpower to clients in various industries established in 2006 we are committed to beco"
+    }
+  ],
+  "sprint2_targets": {
+    "note": "To be established after Sprint Review based on baseline results",
+    "baseline_macro_f1": 0.6789,
+    "baseline_accuracy": 0.7715,
+    "target_macro_f1": 0.7289,
+    "target_accuracy": 0.8015
+  },
+  "classification_report_text": "               precision    recall  f1-score   support\n\n       No Fit       0.94      0.79      0.86     13746\nPotential Fit       0.50      0.66      0.57      3498\n     Good Fit       0.48      0.81      0.60      1494\n\n     accuracy                           0.77     18738\n    macro avg       0.64      0.76      0.68     18738\n weighted avg       0.82      0.77      0.79     18738\n"
+}

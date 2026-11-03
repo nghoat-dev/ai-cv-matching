@@ -1,0 +1,13 @@
+{
+  "label_to_int": {
+    "No Fit": 0,
+    "Potential Fit": 1,
+    "Good Fit": 2
+  },
+  "int_to_label": {
+    "0": "No Fit",
+    "1": "Potential Fit",
+    "2": "Good Fit"
+  },
+  "description": "Fixed ordinal label mapping for CV-Job compatibility classification"
+}

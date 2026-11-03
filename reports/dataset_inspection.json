@@ -1,0 +1,119 @@
+{
+  "schema": {
+    "total_rows": 93733,
+    "columns": [
+      "resume",
+      "jd",
+      "label",
+      "source",
+      "resume_domain",
+      "jd_domain",
+      "_split"
+    ],
+    "dtypes": {
+      "resume": "object",
+      "jd": "object",
+      "label": "object",
+      "source": "object",
+      "resume_domain": "object",
+      "jd_domain": "object",
+      "_split": "object"
+    },
+    "null_counts": {
+      "resume": 0,
+      "jd": 0,
+      "label": 0,
+      "source": 0,
+      "resume_domain": 0,
+      "jd_domain": 0,
+      "_split": 0
+    }
+  },
+  "text_length_stats": {
+    "resume": {
+      "char_count": {
+        "min": 897,
+        "max": 25364,
+        "mean": 6000.53,
+        "median": 5363.0,
+        "p5": 2390.0,
+        "p95": 12978.0
+      },
+      "word_count": {
+        "min": 84,
+        "max": 3134,
+        "mean": 729.69,
+        "median": 647.0
+      },
+      "extreme_outliers": {
+        "too_short_lt10": 0,
+        "too_long_gt50000": 0
+      }
+    },
+    "jd": {
+      "char_count": {
+        "min": 72,
+        "max": 8171,
+        "mean": 2734.36,
+        "median": 2404.0,
+        "p5": 513.0,
+        "p95": 5920.0
+      },
+      "word_count": {
+        "min": 11,
+        "max": 1254,
+        "mean": 375.48,
+        "median": 317.0
+      },
+      "extreme_outliers": {
+        "too_short_lt10": 0,
+        "too_long_gt50000": 0
+      }
+    }
+  },
+  "non_string_counts": {
+    "resume": 0,
+    "jd": 0,
+    "label": 0
+  },
+  "label_distribution": {
+    "No Fit": 68774,
+    "Potential Fit": 17489,
+    "Good Fit": 7470
+  },
+  "resume_domain_top20": {
+    "software": 44138,
+    "data": 19433,
+    "finance": 18470,
+    "engineering": 4399,
+    "management": 2783,
+    "design": 1471,
+    "sales": 954,
+    "ai": 766,
+    "healthcare": 538,
+    "legal": 342,
+    "hr": 239,
+    "marketing": 200
+  },
+  "jd_domain_top20": {
+    "software": 44988,
+    "finance": 21128,
+    "data": 20216,
+    "design": 1989,
+    "management": 1832,
+    "engineering": 1094,
+    "ai": 840,
+    "hr": 690,
+    "legal": 434,
+    "sales": 295,
+    "healthcare": 180,
+    "marketing": 47
+  },
+  "dataset_info": {
+    "name": "med2425/resume-job-fit-merged-v1",
+    "platform": "Hugging Face",
+    "url": "https://huggingface.co/datasets/med2425/resume-job-fit-merged-v1",
+    "license": "See dataset card on Hugging Face",
+    "academic_use": true
+  }
+}

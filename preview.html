@@ -1,0 +1,1103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI CV-Job Matching System — Live UI/UX Pro Max Interactive Preview</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --color-primary: #0369a1;
+      --color-primary-dark: #075985;
+      --color-primary-light: #e0f2fe;
+      --color-secondary: #0ea5e9;
+      --color-accent: #16a34a;
+      --color-accent-dark: #15803d;
+      --color-accent-subtle: rgba(22, 163, 74, 0.1);
+      --color-warning: #d97706;
+      --color-warning-subtle: rgba(217, 119, 6, 0.1);
+      --color-destructive: #dc2626;
+      --color-destructive-subtle: rgba(220, 38, 38, 0.1);
+      --color-background: #f8fafc;
+      --color-surface: #ffffff;
+      --color-surface-hover: #f1f5f9;
+      --color-foreground: #0f172a;
+      --color-muted: #64748b;
+      --color-border: #e2e8f0;
+      --color-border-strong: #cbd5e1;
+      --color-ring: #0369a1;
+
+      --font-heading: 'Space Grotesk', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --font-body: 'DM Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --radius-full: 9999px;
+
+      --shadow-sm: 0 1px 2px 0 rgba(15, 23, 42, 0.05);
+      --shadow-md: 0 4px 6px -1px rgba(15, 23, 42, 0.07), 0 2px 4px -2px rgba(15, 23, 42, 0.05);
+      --shadow-lg: 0 10px 15px -3px rgba(15, 23, 42, 0.08), 0 4px 6px -4px rgba(15, 23, 42, 0.04);
+      --shadow-xl: 0 20px 25px -5px rgba(15, 23, 42, 0.09), 0 8px 10px -6px rgba(15, 23, 42, 0.04);
+    }
+
+    body {
+      font-family: var(--font-body);
+      background-color: var(--color-background);
+      color: var(--color-foreground);
+      line-height: 1.6;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    :focus-visible { outline: 2px solid var(--color-ring); outline-offset: 2px; }
+
+    /* Top Preview Banner */
+    .preview-banner {
+      background: linear-gradient(90deg, #0284c7, #0369a1);
+      color: white;
+      padding: 0.45rem 1.5rem;
+      font-size: 0.8rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(255,255,255,0.2);
+    }
+
+    header {
+      background: linear-gradient(135deg, #07192f 0%, #0a2540 60%, #034870 100%);
+      color: #ffffff;
+      padding: 0.85rem 1.5rem;
+      box-shadow: 0 4px 20px rgba(7, 25, 47, 0.25);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+
+    .header-inner {
+      max-width: 1280px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1.25rem;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .brand-icon {
+      width: 42px;
+      height: 42px;
+      background: linear-gradient(135deg, var(--color-secondary) 0%, var(--color-primary) 100%);
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      box-shadow: 0 4px 12px rgba(14, 165, 233, 0.35);
+      flex-shrink: 0;
+    }
+
+    .brand h1 {
+      font-family: var(--font-heading);
+      font-size: 1.25rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .brand-badge {
+      font-size: 0.68rem;
+      font-weight: 600;
+      padding: 0.15rem 0.5rem;
+      border-radius: var(--radius-full);
+      background: rgba(14, 165, 233, 0.2);
+      color: #38bdf8;
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .brand p { font-size: 0.8rem; color: #94a3b8; font-weight: 400; }
+
+    .nav-tabs { display: flex; gap: 0.4rem; align-items: center; }
+
+    .tab-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      padding: 0.5rem 0.95rem;
+      font-family: var(--font-body);
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: #cbd5e1;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: all 180ms ease;
+    }
+
+    .tab-btn:hover {
+      background: rgba(255, 255, 255, 0.12);
+      color: #ffffff;
+      transform: translateY(-1px);
+    }
+
+    .tab-btn.active {
+      background: #ffffff;
+      color: var(--color-foreground);
+      border-color: #ffffff;
+      font-weight: 600;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .tab-btn.active svg { color: var(--color-primary); }
+
+    main {
+      flex: 1;
+      max-width: 1280px;
+      width: 100%;
+      margin: 1.75rem auto;
+      padding: 0 1.5rem;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1.75rem;
+      align-items: start;
+    }
+
+    @media (min-width: 1024px) {
+      .grid-2 { grid-template-columns: 1.05fr 0.95fr; }
+    }
+
+    .card {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      padding: 1.75rem;
+      box-shadow: var(--shadow-md);
+      transition: box-shadow 200ms ease, border-color 200ms ease;
+    }
+
+    .card:hover {
+      box-shadow: var(--shadow-lg);
+      border-color: var(--color-border-strong);
+    }
+
+    .card-title {
+      font-family: var(--font-heading);
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--color-foreground);
+      margin-bottom: 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      letter-spacing: -0.01em;
+    }
+
+    .card-title-icon { color: var(--color-primary); display: flex; }
+
+    .presets-bar {
+      background: var(--color-primary-light);
+      border: 1px solid #bae6fd;
+      border-radius: var(--radius-md);
+      padding: 0.75rem 1rem;
+      margin-bottom: 1.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .presets-label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--color-primary-dark);
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .btn-sample {
+      background: #ffffff;
+      border: 1px solid #7dd3fc;
+      color: var(--color-primary-dark);
+      padding: 0.35rem 0.75rem;
+      border-radius: var(--radius-sm);
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      transition: all 150ms ease;
+    }
+
+    .btn-sample:hover {
+      background: var(--color-primary);
+      color: #ffffff;
+      border-color: var(--color-primary);
+      transform: translateY(-1px);
+    }
+
+    .form-group { margin-bottom: 1.25rem; }
+
+    .form-label {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--color-foreground);
+      margin-bottom: 0.5rem;
+    }
+
+    .form-label span.req { color: var(--color-destructive); }
+
+    .file-drop {
+      border: 2px dashed var(--color-border-strong);
+      background: var(--color-background);
+      border-radius: var(--radius-md);
+      padding: 1.75rem 1.25rem;
+      text-align: center;
+      cursor: pointer;
+      transition: all 200ms ease;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.6rem;
+    }
+
+    .file-drop:hover {
+      border-color: var(--color-primary);
+      background: var(--color-primary-light);
+      transform: scale(1.005);
+    }
+
+    .file-drop.file-selected {
+      border-color: var(--color-accent);
+      background: rgba(22, 163, 74, 0.04);
+    }
+
+    .drop-icon-wrap {
+      width: 48px;
+      height: 48px;
+      border-radius: var(--radius-full);
+      background: #ffffff;
+      border: 1px solid var(--color-border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--color-primary);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .file-drop.file-selected .drop-icon-wrap { color: var(--color-accent); border-color: #86efac; }
+
+    textarea.form-control {
+      width: 100%;
+      min-height: 170px;
+      padding: 0.85rem 1rem;
+      font-family: var(--font-body);
+      font-size: 0.88rem;
+      color: var(--color-foreground);
+      background: #ffffff;
+      border: 1px solid var(--color-border-strong);
+      border-radius: var(--radius-md);
+      resize: vertical;
+      line-height: 1.5;
+      transition: border-color 150ms ease, box-shadow 150ms ease;
+    }
+
+    textarea.form-control:focus {
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 3px var(--color-primary-light);
+      outline: none;
+    }
+
+    .btn-primary {
+      width: 100%;
+      background: linear-gradient(135deg, var(--color-primary) 0%, #0284c7 100%);
+      color: #ffffff;
+      border: none;
+      border-radius: var(--radius-md);
+      padding: 0.85rem 1.5rem;
+      font-family: var(--font-heading);
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.6rem;
+      box-shadow: 0 4px 12px rgba(3, 105, 161, 0.25);
+      transition: all 200ms ease;
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      background: linear-gradient(135deg, var(--color-primary-dark) 0%, #0369a1 100%);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(3, 105, 161, 0.35);
+    }
+
+    .btn-secondary {
+      background: #ffffff;
+      border: 1px solid var(--color-border-strong);
+      color: var(--color-foreground);
+      border-radius: var(--radius-md);
+      padding: 0.5rem 0.95rem;
+      font-family: var(--font-body);
+      font-size: 0.85rem;
+      font-weight: 500;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      transition: all 150ms ease;
+    }
+
+    .btn-secondary:hover:not(:disabled) {
+      background: var(--color-surface-hover);
+      border-color: var(--color-muted);
+    }
+
+    .spinner {
+      width: 18px;
+      height: 18px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-top-color: #ffffff;
+      border-radius: var(--radius-full);
+      animation: spin 0.8s linear infinite;
+      display: inline-block;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Score Gauge */
+    .gauge-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      padding: 2rem 1.5rem;
+      background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--color-border);
+      box-shadow: var(--shadow-md);
+      margin-bottom: 1.5rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .gauge-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--color-secondary), var(--color-accent));
+    }
+
+    .gauge-wrap {
+      position: relative;
+      width: 150px;
+      height: 150px;
+      margin-bottom: 1.25rem;
+    }
+
+    .gauge-wrap svg { transform: rotate(-90deg); }
+
+    .gauge-bg { stroke: #e2e8f0; stroke-width: 10; fill: none; }
+
+    .gauge-fill {
+      stroke-width: 10;
+      stroke-linecap: round;
+      fill: none;
+      filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.1));
+      transition: stroke-dashoffset 1.1s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .gauge-text {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .score-big {
+      font-family: var(--font-heading);
+      font-size: 2.5rem;
+      font-weight: 700;
+      line-height: 1;
+    }
+
+    .score-unit {
+      font-size: 0.75rem;
+      color: var(--color-muted);
+      font-weight: 500;
+      margin-top: 0.2rem;
+    }
+
+    .badge-compat {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.45rem 1.15rem;
+      border-radius: var(--radius-full);
+      font-family: var(--font-heading);
+      font-size: 0.95rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+
+    .badge-good { background: var(--color-accent-subtle); color: var(--color-accent-dark); border: 1px solid #86efac; }
+    .badge-potential { background: var(--color-warning-subtle); color: #b45309; border: 1px solid #fcd34d; }
+    .badge-nofit { background: var(--color-destructive-subtle); color: #b91c1c; border: 1px solid #fca5a5; }
+
+    /* Chips */
+    .chips-section { margin-top: 1.25rem; }
+    .chips-title {
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--color-foreground);
+      margin-bottom: 0.6rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .chips-wrapper { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.3rem 0.65rem;
+      border-radius: var(--radius-full);
+      font-size: 0.8rem;
+      font-weight: 500;
+    }
+
+    .chip-green { background: var(--color-accent-subtle); color: var(--color-accent-dark); border: 1px solid #bbf7d0; }
+    .chip-red { background: var(--color-destructive-subtle); color: #b91c1c; border: 1px solid #fecaca; }
+
+    .ai-box {
+      margin-top: 1.5rem;
+      background: linear-gradient(135deg, #f0fdf4 0%, #f0f9ff 100%);
+      border: 1px solid #bae6fd;
+      border-radius: var(--radius-md);
+      padding: 1.25rem;
+    }
+
+    .ai-content {
+      font-size: 0.88rem;
+      color: #1e293b;
+      line-height: 1.6;
+      white-space: pre-wrap;
+      margin-top: 0.5rem;
+    }
+
+    .tag-llm {
+      font-size: 0.68rem;
+      font-weight: 700;
+      padding: 0.15rem 0.5rem;
+      border-radius: var(--radius-full);
+      text-transform: uppercase;
+      background: var(--color-primary);
+      color: #ffffff;
+    }
+
+    /* Tables */
+    .table-responsive {
+      overflow-x: auto;
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      background: #ffffff;
+    }
+
+    table { width: 100%; border-collapse: collapse; font-size: 0.85rem; text-align: left; }
+    th {
+      background: #f8fafc;
+      color: var(--color-muted);
+      font-weight: 600;
+      padding: 0.85rem 1rem;
+      border-bottom: 1px solid var(--color-border);
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+    td { padding: 0.85rem 1rem; border-bottom: 1px solid var(--color-border); color: var(--color-foreground); }
+    tr:hover td { background: #f8fafc; }
+    tr:last-child td { border-bottom: none; }
+
+    .pill {
+      display: inline-block;
+      padding: 0.2rem 0.6rem;
+      border-radius: var(--radius-full);
+      font-weight: 700;
+      font-size: 0.82rem;
+      font-family: var(--font-heading);
+    }
+
+    /* Stats Grid */
+    .stats-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1.25rem;
+      margin-bottom: 1.75rem;
+    }
+
+    .stat-card {
+      background: #ffffff;
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      padding: 1.25rem;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      transition: transform 150ms ease;
+    }
+
+    .stat-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+
+    .stat-val {
+      font-family: var(--font-heading);
+      font-size: 1.85rem;
+      font-weight: 700;
+      line-height: 1.1;
+    }
+
+    .stat-lbl {
+      font-size: 0.78rem;
+      font-weight: 500;
+      color: var(--color-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    footer {
+      margin-top: auto;
+      background: #ffffff;
+      border-top: 1px solid var(--color-border);
+      padding: 1.25rem 1.5rem;
+      font-size: 0.82rem;
+      color: var(--color-muted);
+      text-align: center;
+    }
+
+    footer a { color: var(--color-primary); text-decoration: none; font-weight: 500; }
+    footer a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <div class="preview-banner">
+    <div><strong>UI/UX Pro Max Interactive Preview</strong> &bull; Sprint 3 Design System (Space Grotesk + DM Sans)</div>
+    <div>Click presets or Analyze to test animations & scores</div>
+  </div>
+
+  <!-- Header -->
+  <header>
+    <div class="header-inner">
+      <div class="brand">
+        <div class="brand-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3Z"/></svg>
+        </div>
+        <div>
+          <h1>
+            <span>AI CV-Job Matching</span>
+            <span class="brand-badge">Sprint 3 Prod</span>
+          </h1>
+          <p>Intelligent recruitment decision engine powered by PyMuPDF, Scikit-Learn & LLMs</p>
+        </div>
+      </div>
+
+      <nav class="nav-tabs">
+        <button class="tab-btn active" onclick="switchTab('match')">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>
+          <span>Match CV</span>
+        </button>
+        <button class="tab-btn" onclick="switchTab('compare')">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          <span>Multi-CV Compare</span>
+        </button>
+        <button class="tab-btn" onclick="switchTab('history')">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/></svg>
+          <span>History</span>
+        </button>
+        <button class="tab-btn" onclick="switchTab('stats')">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" x2="12" y1="20" y2="10"/><line x1="18" x2="18" y1="20" y2="4"/><line x1="6" x2="6" y1="20" y2="16"/></svg>
+          <span>Analytics</span>
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <!-- TAB 1: MATCHING -->
+    <section id="tab-match">
+      <div class="grid-2">
+        <!-- Input Form Card -->
+        <div class="card">
+          <div class="card-title">
+            <span class="card-title-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>
+            </span>
+            <span>Upload CV & Job Description</span>
+          </div>
+
+          <!-- Presets Bar -->
+          <div class="presets-bar">
+            <div class="presets-label">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+              <span>1-Click Presets:</span>
+            </div>
+            <div style="display:flex; gap:0.4rem; flex-wrap:wrap;">
+              <button type="button" class="btn-sample" onclick="loadSample('python')">Senior Python Dev</button>
+              <button type="button" class="btn-sample" onclick="loadSample('data')">Data Analyst</button>
+              <button type="button" class="btn-sample" onclick="loadSample('accountant')">Accountant</button>
+            </div>
+          </div>
+
+          <form id="match-form" onsubmit="handleMatchSubmit(event)">
+            <div class="form-group">
+              <div class="form-label">
+                <span>Candidate Resume (PDF)<span class="req">*</span></span>
+                <span style="font-size:0.75rem; color:var(--color-muted);">Max 5 MB</span>
+              </div>
+              <div class="file-drop file-selected" id="drop-zone" onclick="document.getElementById('file-input').click()">
+                <input type="file" id="file-input" accept=".pdf" style="display:none;" onchange="handleFileSelect(this.files[0])">
+                <div class="drop-icon-wrap" id="drop-icon-container">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                </div>
+                <div id="drop-title" style="font-size:0.92rem; font-weight:600; color:var(--color-foreground);">resume_senior_python_dev.pdf</div>
+                <div id="drop-sub" style="font-size:0.78rem; color:var(--color-muted);">142.5 KB — Validated PyMuPDF stream</div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <div class="form-label">
+                <span>Target Job Description<span class="req">*</span></span>
+                <span id="char-count" style="font-size:0.75rem; color:var(--color-muted);">412 / 5000 chars</span>
+              </div>
+              <textarea id="jd-input" class="form-control" placeholder="Paste target Job Description here..." maxlength="5000" oninput="updateCharCount()">We are looking for a Senior Python Developer with 3+ years of experience in backend development.
+Required Technical Skills: Python, FastAPI, Docker, PostgreSQL, REST APIs, Git, Redis.
+Responsibilities: Design and implement high-performance APIs, collaborate with ML engineers, maintain test coverage.
+Education: Bachelor's degree in Computer Science, Software Engineering, or related technical field.</textarea>
+            </div>
+
+            <button type="submit" id="btn-submit" class="btn-primary" style="margin-top:1.25rem;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3Z"/></svg>
+              <span>Analyze Compatibility</span>
+            </button>
+          </form>
+        </div>
+
+        <!-- Result Card -->
+        <div class="card" id="result-card">
+          <div class="card-title">
+            <span class="card-title-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" x2="12" y1="20" y2="10"/><line x1="18" x2="18" y1="20" y2="4"/><line x1="6" x2="6" y1="20" y2="16"/></svg>
+            </span>
+            <span>Multi-Dimensional Match Analysis</span>
+          </div>
+
+          <!-- Active Results Container -->
+          <div id="active-results">
+            <div class="gauge-card">
+              <div class="gauge-wrap">
+                <svg width="150" height="150" viewBox="0 0 150 150">
+                  <circle cx="75" cy="75" r="56" class="gauge-bg" />
+                  <circle cx="75" cy="75" r="56" class="gauge-fill" id="gauge-circle" stroke="#16a34a" stroke-dasharray="351.85" stroke-dashoffset="26.8" />
+                </svg>
+                <div class="gauge-text">
+                  <span class="score-big" id="score-text" style="color: #16a34a;">92.4</span>
+                  <span class="score-unit">/ 100 PTS</span>
+                </div>
+              </div>
+              <div class="badge-compat badge-good" id="compat-badge">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                <span>Good Fit</span>
+              </div>
+            </div>
+
+            <!-- Experience Summary Banner -->
+            <div id="exp-summary-box" style="background:#f8fafc; border-left:3px solid var(--color-primary); padding:0.75rem 1rem; margin-bottom:1rem; font-size:0.85rem; border-radius:0 var(--radius-sm) var(--radius-sm) 0;">
+              <strong>Experience Alignment:</strong> Candidate possesses 4.5+ years of verified software engineering experience matching the Senior developer requirement.
+            </div>
+
+            <!-- Dimension Breakdown -->
+            <div id="subscores-box" style="margin-bottom:1.25rem;">
+              <div style="font-size:0.85rem; font-weight:600; color:var(--color-foreground); margin-bottom:0.6rem;">Dimension Score Breakdown</div>
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem;" id="subscores-grid">
+                <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:0.75rem;">
+                  <div style="display:flex; justify-content:space-between; font-size:0.78rem; font-weight:600; margin-bottom:4px;">
+                    <span>Tech Skills (45%)</span><strong style="color:#0284c7;">95.0%</strong>
+                  </div>
+                  <div style="background:#e2e8f0; height:6px; border-radius:99px; overflow:hidden;">
+                    <div style="width:95%; height:100%; background:#0284c7;"></div>
+                  </div>
+                </div>
+                <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:0.75rem;">
+                  <div style="display:flex; justify-content:space-between; font-size:0.78rem; font-weight:600; margin-bottom:4px;">
+                    <span>Experience (30%)</span><strong style="color:#0891b2;">90.0%</strong>
+                  </div>
+                  <div style="background:#e2e8f0; height:6px; border-radius:99px; overflow:hidden;">
+                    <div style="width:90%; height:100%; background:#0891b2;"></div>
+                  </div>
+                </div>
+                <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:0.75rem;">
+                  <div style="display:flex; justify-content:space-between; font-size:0.78rem; font-weight:600; margin-bottom:4px;">
+                    <span>Education (15%)</span><strong style="color:#7c3aed;">100.0%</strong>
+                  </div>
+                  <div style="background:#e2e8f0; height:6px; border-radius:99px; overflow:hidden;">
+                    <div style="width:100%; height:100%; background:#7c3aed;"></div>
+                  </div>
+                </div>
+                <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:0.75rem;">
+                  <div style="display:flex; justify-content:space-between; font-size:0.78rem; font-weight:600; margin-bottom:4px;">
+                    <span>ML Inference (10%)</span><strong style="color:#059669;">88.2%</strong>
+                  </div>
+                  <div style="background:#e2e8f0; height:6px; border-radius:99px; overflow:hidden;">
+                    <div style="width:88.2%; height:100%; background:#059669;"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="chips-section">
+              <div class="chips-title" style="color:var(--color-accent-dark);">
+                <span>Matched Technical Skills (6)</span>
+              </div>
+              <div class="chips-wrapper" id="matched-chips">
+                <span class="chip chip-green">python</span>
+                <span class="chip chip-green">fastapi</span>
+                <span class="chip chip-green">docker</span>
+                <span class="chip chip-green">postgresql</span>
+                <span class="chip chip-green">git</span>
+                <span class="chip chip-green">rest api</span>
+              </div>
+            </div>
+
+            <div class="chips-section">
+              <div class="chips-title" style="color:var(--color-destructive);">
+                <span>Missing Technical Skills (1)</span>
+              </div>
+              <div class="chips-wrapper" id="missing-chips">
+                <span class="chip chip-red">redis</span>
+              </div>
+            </div>
+
+            <div class="ai-box">
+              <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:0.5rem;">
+                <div style="font-family:var(--font-heading); font-size:0.92rem; font-weight:700; color:var(--color-primary-dark); display:flex; align-items:center; gap:0.4rem;">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3Z"/></svg>
+                  <span>AI Copilot Analysis</span>
+                </div>
+                <span class="tag-llm">LLM Grounded</span>
+              </div>
+              <div class="ai-content" id="explanation-text">The candidate demonstrates exceptional alignment with the Senior Python Developer position. Key strengths include verified proficiency with FastAPI, Docker, and PostgreSQL with over 4.5 years of industry experience. The candidate holds a relevant Computer Science degree. Only minor gaps detected in Redis caching, which can easily be bridged via onboarding. Overall highly recommended for technical screening.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 2: COMPARE -->
+    <section id="tab-compare" style="display:none;">
+      <div class="card">
+        <div class="card-title">
+          <span class="card-title-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          </span>
+          <span>Candidate Evaluation Leaderboard (3 Candidates Ranked)</span>
+        </div>
+        <div class="table-responsive">
+          <table>
+            <thead>
+              <tr>
+                <th style="width:60px;">Rank</th>
+                <th>Candidate File</th>
+                <th>Compatibility Score</th>
+                <th>Fit Classification</th>
+                <th>Top Matched Skills</th>
+                <th>Gaps</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr style="background:#f0fdf4;">
+                <td style="font-weight:700; color:#16a34a;">#1</td>
+                <td><strong>alex_nguyen_senior_dev.pdf</strong></td>
+                <td><span class="pill" style="background:#dcfce7; color:#16a34a;">92.4</span></td>
+                <td><span style="color:#16a34a; font-weight:600;">Good Fit</span></td>
+                <td><span class="chip chip-green">python</span> <span class="chip chip-green">fastapi</span> <span class="chip chip-green">docker</span></td>
+                <td style="color:#16a34a; font-weight:600;">1 gap</td>
+              </tr>
+              <tr>
+                <td style="font-weight:700;">#2</td>
+                <td><strong>sarah_tran_backend.pdf</strong></td>
+                <td><span class="pill" style="background:#fef3c7; color:#d97706;">71.8</span></td>
+                <td><span style="color:#d97706; font-weight:600;">Potential Fit</span></td>
+                <td><span class="chip chip-green">python</span> <span class="chip chip-green">postgresql</span></td>
+                <td style="color:#d97706; font-weight:600;">3 gaps</td>
+              </tr>
+              <tr>
+                <td style="font-weight:700;">#3</td>
+                <td><strong>michael_le_accountant.pdf</strong></td>
+                <td><span class="pill" style="background:#fee2e2; color:#dc2626;">14.5</span></td>
+                <td><span style="color:#dc2626; font-weight:600;">No Fit</span></td>
+                <td><span class="chip chip-green">excel</span></td>
+                <td style="color:#dc2626; font-weight:600;">7 gaps</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 3: HISTORY -->
+    <section id="tab-history" style="display: none;">
+      <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 1rem;">
+          <h2 class="card-title" style="margin-bottom: 0;">
+            <span class="card-title-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/></svg></span>
+            <span>Matching Evaluation History (4 Records)</span>
+          </h2>
+          <div style="display:flex; gap:0.5rem;">
+            <button class="btn-secondary" onclick="alert('Exporting matching records to CSV...')">Export CSV</button>
+            <button class="btn-secondary">Refresh</button>
+          </div>
+        </div>
+        <div class="table-responsive">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Candidate CV</th>
+                <th>Score</th>
+                <th>Fit Classification</th>
+                <th>Matched Skills</th>
+                <th>Timestamp</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>4</td>
+                <td><strong>alex_nguyen_senior_dev.pdf</strong></td>
+                <td><span class="pill" style="background:#dcfce7; color:#16a34a;">92.4</span></td>
+                <td><strong style="color:#16a34a;">Good Fit</strong></td>
+                <td><span class="chip chip-green">python</span> <span class="chip chip-green">fastapi</span> <span class="chip chip-green">docker</span></td>
+                <td style="font-size:0.8rem; color:var(--color-muted);">03/11/2026, 19:45</td>
+              </tr>
+              <tr>
+                <td>3</td>
+                <td><strong>sarah_tran_backend.pdf</strong></td>
+                <td><span class="pill" style="background:#fef3c7; color:#d97706;">71.8</span></td>
+                <td><strong style="color:#d97706;">Potential Fit</strong></td>
+                <td><span class="chip chip-green">python</span> <span class="chip chip-green">sql</span></td>
+                <td style="font-size:0.8rem; color:var(--color-muted);">03/11/2026, 18:30</td>
+              </tr>
+              <tr>
+                <td>2</td>
+                <td><strong>david_pham_ml.pdf</strong></td>
+                <td><span class="pill" style="background:#dcfce7; color:#16a34a;">84.5</span></td>
+                <td><strong style="color:#16a34a;">Good Fit</strong></td>
+                <td><span class="chip chip-green">pandas</span> <span class="chip chip-green">scikit-learn</span></td>
+                <td style="font-size:0.8rem; color:var(--color-muted);">03/11/2026, 17:15</td>
+              </tr>
+              <tr>
+                <td>1</td>
+                <td><strong>michael_le_accountant.pdf</strong></td>
+                <td><span class="pill" style="background:#fee2e2; color:#dc2626;">14.5</span></td>
+                <td><strong style="color:#dc2626;">No Fit</strong></td>
+                <td><span class="chip chip-green">excel</span></td>
+                <td style="font-size:0.8rem; color:var(--color-muted);">03/11/2026, 16:00</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 4: STATS -->
+    <section id="tab-stats" style="display: none;">
+      <div class="stats-cards">
+        <div class="stat-card">
+          <div>
+            <div class="stat-val" id="stat-total">1,248</div>
+            <div class="stat-lbl">Total Matches</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div>
+            <div class="stat-val" id="stat-avg" style="color:var(--color-accent-dark);">74.2</div>
+            <div class="stat-lbl">Average Score</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div>
+            <div class="stat-val" id="stat-cvs" style="color:var(--color-primary);">542</div>
+            <div class="stat-lbl">Resumes Analyzed</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div>
+            <div class="stat-val" id="stat-jds" style="color:#7c3aed;">126</div>
+            <div class="stat-lbl">Job Descriptions</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2 class="card-title">
+          <span class="card-title-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/></svg></span>
+          <span>Compatibility Classification Distribution</span>
+        </h2>
+        <div id="dist-bars" style="margin-top:1rem;">
+          <div style="display:flex; align-items:center; gap:1rem; margin-bottom:0.75rem;">
+            <div style="width:110px; font-weight:600; font-size:0.85rem;">Good Fit</div>
+            <div style="flex:1; height:10px; background:#f1f5f9; border-radius:999px; overflow:hidden;">
+              <div style="width:48%; height:100%; background:var(--color-accent); border-radius:999px;"></div>
+            </div>
+            <div style="width:60px; text-align:right; font-size:0.85rem; color:var(--color-muted);">599 (48%)</div>
+          </div>
+          <div style="display:flex; align-items:center; gap:1rem; margin-bottom:0.75rem;">
+            <div style="width:110px; font-weight:600; font-size:0.85rem;">Potential Fit</div>
+            <div style="flex:1; height:10px; background:#f1f5f9; border-radius:999px; overflow:hidden;">
+              <div style="width:34%; height:100%; background:var(--color-warning); border-radius:999px;"></div>
+            </div>
+            <div style="width:60px; text-align:right; font-size:0.85rem; color:var(--color-muted);">424 (34%)</div>
+          </div>
+          <div style="display:flex; align-items:center; gap:1rem; margin-bottom:0.75rem;">
+            <div style="width:110px; font-weight:600; font-size:0.85rem;">No Fit</div>
+            <div style="flex:1; height:10px; background:#f1f5f9; border-radius:999px; overflow:hidden;">
+              <div style="width:18%; height:100%; background:var(--color-destructive); border-radius:999px;"></div>
+            </div>
+            <div style="width:60px; text-align:right; font-size:0.85rem; color:var(--color-muted);">225 (18%)</div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>AI CV-Job Matching System &copy; 2026 &bull; Agile Team 6 &bull; Sprint 3 Production Release</p>
+    <p style="margin-top:0.35rem;">
+      <a href="http://localhost:8000/docs" target="_blank">Swagger API Reference</a> &bull;
+      <a href="http://localhost:8000/health" target="_blank">Service Health</a> &bull;
+      <a href="http://localhost:8000/api/v1/info" target="_blank">API Specs</a>
+    </p>
+  </footer>
+
+  <script>
+    function switchTab(name) {
+      ['match', 'compare', 'history', 'stats'].forEach(t => {
+        const el = document.getElementById(`tab-${t}`);
+        if (el) el.style.display = (t === name) ? 'block' : 'none';
+      });
+      document.querySelectorAll('.tab-btn').forEach((b, i) => {
+        const tabs = ['match', 'compare', 'history', 'stats'];
+        b.classList.toggle('active', tabs[i] === name);
+      });
+    }
+
+    function loadSample(type) {
+      const circle = document.getElementById('gauge-circle');
+      const scoreText = document.getElementById('score-text');
+      const badge = document.getElementById('compat-badge');
+      const matched = document.getElementById('matched-chips');
+      const missing = document.getElementById('missing-chips');
+      const exp = document.getElementById('exp-summary-box');
+      const expText = document.getElementById('explanation-text');
+      const dropTitle = document.getElementById('drop-title');
+
+      if (type === 'python') {
+        document.getElementById('jd-input').value = `We are looking for a Senior Python Developer with 3+ years of experience in backend development.
+Required Technical Skills: Python, FastAPI, Docker, PostgreSQL, REST APIs, Git, Redis.
+Responsibilities: Design and implement high-performance APIs, collaborate with ML engineers, maintain test coverage.
+Education: Bachelor's degree in Computer Science, Software Engineering, or related technical field.`;
+        dropTitle.textContent = 'resume_senior_python_dev.pdf';
+        circle.style.stroke = '#16a34a';
+        circle.style.strokeDashoffset = '26.8'; // ~92.4%
+        scoreText.textContent = '92.4';
+        scoreText.style.color = '#16a34a';
+        badge.className = 'badge-compat badge-good';
+        badge.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg><span>Good Fit</span>';
+        matched.innerHTML = '<span class="chip chip-green">python</span><span class="chip chip-green">fastapi</span><span class="chip chip-green">docker</span><span class="chip chip-green">postgresql</span><span class="chip chip-green">git</span><span class="chip chip-green">rest api</span>';
+        missing.innerHTML = '<span class="chip chip-red">redis</span>';
+        exp.innerHTML = '<strong>Experience Alignment:</strong> Candidate possesses 4.5+ years of verified software engineering experience matching the Senior developer requirement.';
+        expText.textContent = 'The candidate demonstrates exceptional alignment with the Senior Python Developer position. Key strengths include verified proficiency with FastAPI, Docker, and PostgreSQL with over 4.5 years of industry experience.';
+      } else if (type === 'data') {
+        document.getElementById('jd-input').value = `Seeking a skilled Data Analyst / Machine Learning Specialist to derive actionable insights from complex datasets.
+Required Technical Skills: Python, Pandas, NumPy, Scikit-learn, SQL, PowerBI, Data Visualization, Statistics.
+Experience: 2+ years working with relational databases and predictive modeling.
+Qualifications: Bachelor's degree in Data Science, Mathematics, or Computer Science.`;
+        dropTitle.textContent = 'resume_data_analyst.pdf';
+        circle.style.stroke = '#16a34a';
+        circle.style.strokeDashoffset = '66.8'; // ~81.0%
+        scoreText.textContent = '81.0';
+        scoreText.style.color = '#16a34a';
+        badge.className = 'badge-compat badge-good';
+        badge.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg><span>Good Fit</span>';
+        matched.innerHTML = '<span class="chip chip-green">python</span><span class="chip chip-green">pandas</span><span class="chip chip-green">numpy</span><span class="chip chip-green">sql</span><span class="chip chip-green">scikit-learn</span>';
+        missing.innerHTML = '<span class="chip chip-red">powerbi</span>';
+        exp.innerHTML = '<strong>Experience Alignment:</strong> 3 years in predictive modeling and business intelligence fits the Mid-Senior level target.';
+        expText.textContent = 'Candidate shows high quantitative capability, strong Python/SQL background, and sound grasp of statistical modeling.';
+      } else if (type === 'accountant') {
+        document.getElementById('jd-input').value = `Urgent hiring: Senior General Accountant to oversee financial statements, ledger entries, and tax compliance.
+Required Skills: GAAP, Financial Reporting, QuickBooks, Excel, Tax Audit, Accounts Payable/Receivable.
+Experience: Minimum 4 years in corporate accounting or banking.
+Education: Bachelor's degree in Accounting, Finance, or CPA certification.`;
+        dropTitle.textContent = 'resume_senior_python_dev.pdf';
+        circle.style.stroke = '#dc2626';
+        circle.style.strokeDashoffset = '300.8'; // ~14.5%
+        scoreText.textContent = '14.5';
+        scoreText.style.color = '#dc2626';
+        badge.className = 'badge-compat badge-nofit';
+        badge.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg><span>No Fit</span>';
+        matched.innerHTML = '<span class="chip chip-green">git</span>';
+        missing.innerHTML = '<span class="chip chip-red">gaap</span><span class="chip chip-red">quickbooks</span><span class="chip chip-red">tax audit</span><span class="chip chip-red">financial reporting</span>';
+        exp.innerHTML = '<strong>Experience Alignment:</strong> Domain mismatch — Candidate background is Software Development, not Financial Accounting.';
+        expText.textContent = 'Severe domain mismatch. Candidate skills reflect software backend development rather than corporate accounting or financial reporting.';
+      }
+    }
+
+    function handleMatchSubmit(e) {
+      e.preventDefault();
+      const btn = document.getElementById('btn-submit');
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner"></span> Analyzing Compatibility...';
+      setTimeout(() => {
+        btn.disabled = false;
+        btn.innerHTML = `
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3Z"/></svg>
+          <span>Analyze Compatibility</span>`;
+        alert('Analysis complete! Check the updated Multi-Dimensional Match Analysis on the right.');
+      }, 1000);
+    }
+  </script>
+</body>
+</html>
+

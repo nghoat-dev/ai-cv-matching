@@ -1,0 +1,56 @@
+# AI CV-Job Matching — .gitignore
+
+# ── Secrets ──────────────────────────────────────────────────────────────────
+.env
+
+# ── Python ───────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg-info/
+dist/
+build/
+.eggs/
+*.egg
+
+# ── Virtual environments ──────────────────────────────────────────────────────
+venv/
+.venv/
+env/
+.env/
+
+# ── Node / Frontend ───────────────────────────────────────────────────────────
+node_modules/
+dist/
+.cache/
+REA/
+.agents/
+
+
+# ── Databases ─────────────────────────────────────────────────────────────────
+*.db
+*.sqlite3
+
+# ── Data files ────────────────────────────────────────────────────────────────
+data/raw/*.csv
+data/raw/*.parquet
+data/processed/*.csv
+data/processed/*.parquet
+data/*.parquet
+
+# ── ML artefacts ──────────────────────────────────────────────────────────────
+# Keep the models/ directory and serialize model artifacts for production deployment
+!models/*.joblib
+
+# ── Uploaded PDFs ─────────────────────────────────────────────────────────────
+uploads/
+*.pdf
+
+# ── IDE / OS ──────────────────────────────────────────────────────────────────
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*.swo
+Thumbs.db

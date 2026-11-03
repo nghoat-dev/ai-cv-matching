@@ -1,0 +1,17 @@
+.git
+.github
+.vscode
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache
+.coverage
+htmlcov
+node_modules
+data/raw/dataset_cache.parquet
+data/processed/*.csv
+frontend/node_modules
+frontend/dist
+.env
+

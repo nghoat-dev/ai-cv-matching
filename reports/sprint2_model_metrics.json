@@ -1,0 +1,59 @@
+{
+  "sprint": 2,
+  "model_version": "v2",
+  "evaluation_date": "2026-11-01T19:46:16.009860",
+  "metrics": {
+    "accuracy": 0.8229,
+    "macro_precision": 0.6996,
+    "macro_recall": 0.7244,
+    "macro_f1": 0.7104,
+    "weighted_f1": 0.8235,
+    "per_class": {
+      "No Fit": {
+        "precision": 0.9084,
+        "recall": 0.9007,
+        "f1": 0.9045,
+        "support": 13746
+      },
+      "Potential Fit": {
+        "precision": 0.5939,
+        "recall": 0.5678,
+        "f1": 0.5805,
+        "support": 3498
+      },
+      "Good Fit": {
+        "precision": 0.5966,
+        "recall": 0.7048,
+        "f1": 0.6462,
+        "support": 1494
+      }
+    },
+    "confusion_matrix": [
+      [
+        12381,
+        1057,
+        308
+      ],
+      [
+        1108,
+        1986,
+        404
+      ],
+      [
+        140,
+        301,
+        1053
+      ]
+    ],
+    "classification_report": "               precision    recall  f1-score   support\n\n       No Fit       0.91      0.90      0.90     13746\nPotential Fit       0.59      0.57      0.58      3498\n     Good Fit       0.60      0.70      0.65      1494\n\n     accuracy                           0.82     18738\n    macro avg       0.70      0.72      0.71     18738\n weighted avg       0.82      0.82      0.82     18738\n"
+  },
+  "comparison_with_baseline": {
+    "baseline_macro_f1": 0.6789,
+    "enhanced_macro_f1": 0.7104,
+    "f1_delta": 0.0315,
+    "baseline_accuracy": 0.7715,
+    "enhanced_accuracy": 0.8229,
+    "accuracy_delta": 0.0514,
+    "target_macro_f1_met": true
+  }
+}

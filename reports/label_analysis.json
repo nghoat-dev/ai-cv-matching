@@ -1,0 +1,93 @@
+{
+  "label_analysis": {
+    "distribution": {
+      "Good Fit": {
+        "count": 7470,
+        "percentage": 7.97
+      },
+      "Potential Fit": {
+        "count": 17489,
+        "percentage": 18.66
+      },
+      "No Fit": {
+        "count": 68774,
+        "percentage": 73.37
+      }
+    },
+    "total": 93733,
+    "imbalance_flagged": true,
+    "minority_pct": 7.97,
+    "majority_minority_ratio": 9.21,
+    "recommendation": "Use stratified splits and class_weight=balanced"
+  },
+  "domain_analysis": {
+    "resume_domain_frequencies": {
+      "software": 44138,
+      "data": 19433,
+      "finance": 18470,
+      "engineering": 4399,
+      "management": 2783,
+      "design": 1471,
+      "sales": 954,
+      "ai": 766,
+      "healthcare": 538,
+      "legal": 342,
+      "hr": 239,
+      "marketing": 200
+    },
+    "resume_domain_missing_rate": 0.0,
+    "jd_domain_frequencies": {
+      "software": 44988,
+      "finance": 21128,
+      "data": 20216,
+      "design": 1989,
+      "management": 1832,
+      "engineering": 1094,
+      "ai": 840,
+      "hr": 690,
+      "legal": 434,
+      "sales": 295,
+      "healthcare": 180,
+      "marketing": 47
+    },
+    "jd_domain_missing_rate": 0.0,
+    "domain_label_crosstab": {
+      "Good Fit": {
+        "ai": 17,
+        "data": 708,
+        "design": 50,
+        "engineering": 86,
+        "finance": 4146,
+        "healthcare": 0,
+        "hr": 0,
+        "legal": 4,
+        "management": 46,
+        "marketing": 0
+      },
+      "No Fit": {
+        "ai": 729,
+        "data": 15730,
+        "design": 1188,
+        "engineering": 4122,
+        "finance": 8507,
+        "healthcare": 520,
+        "hr": 222,
+        "legal": 237,
+        "management": 2456,
+        "marketing": 182
+      },
+      "Potential Fit": {
+        "ai": 20,
+        "data": 2995,
+        "design": 233,
+        "engineering": 191,
+        "finance": 5817,
+        "healthcare": 18,
+        "hr": 17,
+        "legal": 101,
+        "management": 281,
+        "marketing": 18
+      }
+    }
+  }
+}
