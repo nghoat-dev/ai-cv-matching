@@ -93,7 +93,7 @@ def test_match_rejects_non_pdf_extension():
     res = client.post(
         "/api/v1/match",
         files={"pdf_file": ("resume.txt", b"plain text", "text/plain")},
-        data={"jd_text": "Python developer"},
+        data={"jd_text": "We are seeking a Senior Python Developer with FastAPI and Docker experience."},
     )
     assert res.status_code == 400
     assert "PDF" in res.json()["message"]
@@ -103,7 +103,7 @@ def test_match_rejects_spoofed_magic_bytes():
     res = client.post(
         "/api/v1/match",
         files={"pdf_file": ("malicious.pdf", b"NOT_A_PDF_STREAM", "application/pdf")},
-        data={"jd_text": "Python developer"},
+        data={"jd_text": "We are seeking a Senior Python Developer with FastAPI and Docker experience."},
     )
     assert res.status_code == 400
     assert "magic bytes" in res.json()["message"].lower() or "pdf" in res.json()["message"].lower()
