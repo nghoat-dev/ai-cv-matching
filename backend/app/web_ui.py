@@ -705,12 +705,15 @@ WEB_UI_HTML = """<!DOCTYPE html>
                 <span>Target Job Description<span class="req">*</span></span>
                 <span id="char-count" style="font-size:0.75rem; color:var(--color-muted);">0 / 5000 chars</span>
               </div>
-              <textarea id="jd-input" class="form-control" placeholder="Paste target Job Description here...&#10;&#10;Key requirements, technical skills, domain responsibilities, and qualifications will be automatically parsed and matched against the resume." maxlength="5000" oninput="updateCharCount()"></textarea>
+              <textarea id="jd-input" class="form-control" placeholder="Paste target Job Description here...&#10;&#10;Key requirements, technical skills, domain responsibilities, and qualifications will be automatically parsed and matched against the resume." maxlength="5000" oninput="handleJdInput()"></textarea>
+              <div id="jd-warning" class="error-box" style="display:block; background:#fffbeb; color:#b45309; border-color:#fef3c7; font-size:0.8rem; padding:0.5rem 0.75rem; margin-top:0.5rem;">
+                Job description must contain at least 30 characters and at least 5 valid words
+              </div>
             </div>
 
             <div id="form-error" class="error-box"></div>
 
-            <button type="submit" id="btn-submit" class="btn-primary" style="margin-top:1.25rem;">
+            <button type="submit" id="btn-submit" class="btn-primary" style="margin-top:1.25rem;" disabled>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3Z"/></svg>
               <span>Analyze Compatibility</span>
             </button>
@@ -892,17 +895,43 @@ WEB_UI_HTML = """<!DOCTYPE html>
       if (name === 'stats') loadStats();
     }
 
+    function clearActiveResults() {
+      const active = document.getElementById('active-results');
+      const empty = document.getElementById('empty-state');
+      if (active) active.style.display = 'none';
+      if (empty) empty.style.display = 'block';
+      const errBox = document.getElementById('form-error');
+      if (errBox) errBox.style.display = 'none';
+    }
+
+    function validateInput() {
+      const jd = (document.getElementById('jd-input').value || '').trim();
+      const words = jd.match(/[a-zA-Z]+/g) || [];
+      const isTooShortOrInvalid = jd.length < 30 || words.length < 5;
+      const warning = document.getElementById('jd-warning');
+      if (warning) {
+        warning.style.display = isTooShortOrInvalid ? 'block' : 'none';
+      }
+      const btn = document.getElementById('btn-submit');
+      if (btn) {
+        btn.disabled = isTooShortOrInvalid || !selectedFile;
+      }
+      return !isTooShortOrInvalid;
+    }
+
     function handleFileSelect(file) {
       if (!file) return;
       if (!file.name.toLowerCase().endsWith('.pdf')) {
         alert('Please choose a valid PDF file.');
         return;
       }
+      clearActiveResults();
       selectedFile = file;
       const dz = document.getElementById('drop-zone');
       dz.classList.add('file-selected');
       document.getElementById('drop-title').textContent = file.name;
       document.getElementById('drop-sub').textContent = `${(file.size / 1024).toFixed(1)} KB — Ready to analyze`;
+      validateInput();
     }
 
     function updateCharCount() {
@@ -910,7 +939,14 @@ WEB_UI_HTML = """<!DOCTYPE html>
       document.getElementById('char-count').textContent = `${len} / 5000 chars`;
     }
 
+    function handleJdInput() {
+      clearActiveResults();
+      updateCharCount();
+      validateInput();
+    }
+
     function loadSample(type) {
+      clearActiveResults();
       if (type === 'python') {
         document.getElementById('jd-input').value = `We are looking for a Senior Python Developer with 3+ years of experience in backend development.
 Required Technical Skills: Python, FastAPI, Docker, PostgreSQL, REST APIs, Git, Redis.
@@ -928,6 +964,7 @@ Experience: Minimum 4 years in corporate accounting or banking.
 Education: Bachelor's degree in Accounting, Finance, or CPA certification.`;
       }
       updateCharCount();
+      validateInput();
     }
 
     async function handleMatchSubmit(e) {
@@ -936,13 +973,14 @@ Education: Bachelor's degree in Accounting, Finance, or CPA certification.`;
       errBox.style.display = 'none';
 
       const jd = document.getElementById('jd-input').value.trim();
+      const words = jd.match(/[a-zA-Z]+/g) || [];
       if (!selectedFile) {
         errBox.textContent = 'Please select a candidate CV PDF file.';
         errBox.style.display = 'block';
         return;
       }
-      if (!jd) {
-        errBox.textContent = 'Please provide the Job Description text.';
+      if (jd.length < 30 || words.length < 5) {
+        errBox.textContent = 'Job description must contain at least 30 characters and at least 5 valid words.';
         errBox.style.display = 'block';
         return;
       }
@@ -976,6 +1014,7 @@ Education: Bachelor's degree in Accounting, Finance, or CPA certification.`;
         btn.innerHTML = `
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3Z"/></svg>
           <span>Analyze Compatibility</span>`;
+        validateInput();
       }
     }
 
@@ -983,8 +1022,17 @@ Education: Bachelor's degree in Accounting, Finance, or CPA certification.`;
       document.getElementById('empty-state').style.display = 'none';
       document.getElementById('active-results').style.display = 'block';
 
-      const score = data.matching_score || 0;
-      const label = data.compatibility_label || 'No Fit';
+      // Mathematical score consistency: round(0.45 * tech + 0.30 * exp + 0.15 * edu + 0.10 * ml, 1)
+      let score = data.matching_score || 0;
+      if (data.sub_scores) {
+        const sub = data.sub_scores;
+        const tech = sub.tech_skill_score || 0;
+        const exp = sub.experience_score || 0;
+        const edu = sub.other_req_score || 0;
+        const ml = sub.ml_model_score || 0;
+        score = Math.round((0.45 * tech + 0.30 * exp + 0.15 * edu + 0.10 * ml) * 10) / 10;
+      }
+      const label = score >= 75 ? 'Good Fit' : score >= 50 ? 'Potential Fit' : 'No Fit';
 
       // Update Gauge
       document.getElementById('score-text').textContent = score.toFixed(1);

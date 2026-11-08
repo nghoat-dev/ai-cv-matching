@@ -120,6 +120,82 @@ def test_match_rejects_empty_jd():
     assert "empty" in res.json()["message"].lower()
 
 
+def test_match_rejects_gibberish_or_short_jd():
+    """US-15 & US-22: Reject short/gibberish JD with HTTP 422 and INVALID_JD_CONTENT."""
+    pdf_bytes = _get_sample_pdf_bytes()
+
+    # 1. 'lmao' — 4 chars, 1 word
+    res = client.post(
+        "/api/v1/match",
+        files={"pdf_file": ("resume.pdf", pdf_bytes, "application/pdf")},
+        data={"jd_text": "lmao"},
+    )
+    assert res.status_code == 422
+    body = res.json()
+    assert body["error_code"] == "INVALID_JD_CONTENT"
+    assert body["message"] == "Job description is too short or invalid."
+
+    # 2. Less than 30 chars, < 5 words
+    res2 = client.post(
+        "/api/v1/match",
+        files={"pdf_file": ("resume.pdf", pdf_bytes, "application/pdf")},
+        data={"jd_text": "Only three words"},
+    )
+    assert res2.status_code == 422
+    assert res2.json()["error_code"] == "INVALID_JD_CONTENT"
+
+
+def test_scorer_mathematical_consistency():
+    """Verify overall score gauge equals exact weighted sum of the 4 dimension bars."""
+    from backend.app.schemas import CVExtractedData, JDExtractedData
+    from backend.app.services.scorer import MultiDimensionalScorer, evaluate_comprehensive_match
+
+    scorer = MultiDimensionalScorer()
+    cv_data = CVExtractedData(
+        full_name="Test Candidate",
+        technical_skills=["Python", "FastAPI", "Docker"],
+        total_experience_years=3.0,
+        experience_descriptions=["Developed FastAPI services with Docker"],
+        education_level="Bachelor",
+        other_qualifications=["Bachelor's Degree"],
+        raw_text="Test CV with Python, FastAPI, Docker",
+    )
+    jd_data = JDExtractedData(
+        job_title="Python Engineer",
+        required_technical_skills=["Python", "FastAPI", "Docker", "Kubernetes", "PostgreSQL"],
+        min_experience_years=3.0,
+        job_responsibilities=["Develop backend services in Docker"],
+        required_education="Bachelor's Degree",
+        other_requirements=["Bachelor's Degree"],
+        normalized_jd_text="Python FastAPI Docker Kubernetes PostgreSQL Bachelor",
+    )
+    score_res = scorer.compute_scores(cv_data, jd_data, ml_model_score=75.0)
+    sub = score_res["sub_scores"]
+    tech = sub["tech_skill_score"]
+    exp = sub["experience_score"]
+    edu = sub["other_req_score"]
+    ml = sub["ml_model_score"]
+
+    expected_score = round(0.45 * tech + 0.30 * exp + 0.15 * edu + 0.10 * ml, 1)
+    assert score_res["matching_score"] == expected_score
+
+    # Also test evaluate_comprehensive_match
+    raw_res = evaluate_comprehensive_match(
+        cv_text="Python FastAPI Docker developer with 3 years experience. Bachelor of Science.",
+        jd_text="Looking for Python FastAPI Docker Kubernetes engineer. 3+ years experience. Bachelor's Degree.",
+        ml_prob_score=70.0,
+    )
+    raw_sub = raw_res["sub_scores"]
+    raw_expected = round(
+        0.45 * raw_sub["tech_skill_score"]
+        + 0.30 * raw_sub["experience_score"]
+        + 0.15 * raw_sub["other_req_score"]
+        + 0.10 * raw_sub["ml_model_score"],
+        1,
+    )
+    assert raw_res["matching_score"] == raw_expected
+
+
 # ---------------------------------------------------------------------------
 # 3. Structured CV Entity Extraction (US-16)
 # ---------------------------------------------------------------------------

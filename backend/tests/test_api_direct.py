@@ -26,6 +26,7 @@ if str(_ML_DIR) not in sys.path:
 from fastapi import UploadFile
 from fastapi.exceptions import HTTPException
 
+from backend.app.database import create_tables
 from backend.app.main import (
     api_info,
     compare_multiple_cvs,
@@ -53,6 +54,7 @@ async def run_all_tests():
     print("=" * 65, flush=True)
     print("  RUNNING COMPREHENSIVE DIRECT API & BUSINESS LOGIC TESTS", flush=True)
     print("=" * 65, flush=True)
+    create_tables()
 
     # 1. Health check
     h = await health_check()
@@ -141,11 +143,36 @@ async def run_all_tests():
     # 12. Security Validation: Reject Spoofed File
     fake_file = UploadFile(file=io.BytesIO(b"NOT_A_VALID_PDF_STREAM"), filename="fake.pdf")
     try:
-        await match_cv_to_jd(fake_file, "Some valid JD")
+        await match_cv_to_jd(fake_file, "Senior Python Developer with 5 years experience in FastAPI and Docker")
         assert False, "Should have raised HTTPException 400 for magic bytes"
     except HTTPException as e:
         assert e.status_code == 400
         print(f"  [PASS] 12. Security validation -> Rejected spoofed PDF (HTTP {e.status_code})")
+
+    # 12b. Strict Input Validation (US-15 & US-22): Reject gibberish 'lmao' with HTTP 422
+    uf_lmao = _create_upload_file(SAMPLE_PYTHON_PATH, "Sample_CV_Python_Developer.pdf")
+    try:
+        await match_cv_to_jd(uf_lmao, "lmao")
+        assert False, "Should have raised HTTPException 422 for 'lmao'"
+    except HTTPException as e:
+        assert e.status_code == 422
+        assert e.detail.get("error_code") == "INVALID_JD_CONTENT"
+        assert "short or invalid" in e.detail.get("message", "").lower()
+        print(f"  [PASS] 12b. Strict JD validation -> Rejected 'lmao' with HTTP 422 and INVALID_JD_CONTENT")
+
+    # 12c. Mathematical Score Consistency
+    uf_math = _create_upload_file(SAMPLE_PYTHON_PATH, "Sample_CV_Python_Developer.pdf")
+    math_res = await match_cv_to_jd(uf_math, py_jd)
+    m_sub = math_res.sub_scores
+    expected_math_score = round(
+        0.45 * m_sub["tech_skill_score"]
+        + 0.30 * m_sub["experience_score"]
+        + 0.15 * m_sub["other_req_score"]
+        + 0.10 * m_sub["ml_model_score"],
+        1,
+    )
+    assert math_res.matching_score == expected_math_score, f"Expected {expected_math_score}, got {math_res.matching_score}"
+    print(f"  [PASS] 12c. Mathematical score consistency -> {math_res.matching_score} == round(0.45*{m_sub['tech_skill_score']} + 0.30*{m_sub['experience_score']} + 0.15*{m_sub['other_req_score']} + 0.10*{m_sub['ml_model_score']}, 1)")
 
     # 13. Real-world TopCV PDF Extraction & Matching (Leading whitespace & template layout)
     hung_path = _PROJECT_ROOT / "Documents" / "27NguyenQuocHungTopCV261026100330.pdf"

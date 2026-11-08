@@ -25,7 +25,9 @@ function App() {
 
   const handleMatchResult = (data) => {
     setResult(data)
-    setHistoryRefresh((n) => n + 1)
+    if (data) {
+      setHistoryRefresh((n) => n + 1)
+    }
   }
 
   return (
@@ -88,7 +90,7 @@ function App() {
       <main className="app-main">
         {activeTab === 'upload' && (
           <div className="upload-layout">
-            <MatchForm onResult={handleMatchResult} />
+            <MatchForm onResult={handleMatchResult} onReset={() => setResult(null)} />
             {result && <ResultCard result={result} />}
           </div>
         )}

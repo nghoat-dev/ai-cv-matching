@@ -35,16 +35,31 @@ function ResultCard({ result }) {
     llm_status,
   } = result
 
+  // Enforce exact mathematical score consistency (US-MultiDim):
+  // finalScore = round(0.45 * tech + 0.30 * exp + 0.15 * edu + 0.10 * ml, 1)
+  const tech = sub_scores?.tech_skill_score ?? 0
+  const exp = sub_scores?.experience_score ?? 0
+  const edu = sub_scores?.other_req_score ?? 0
+  const ml = sub_scores?.ml_model_score ?? 0
+
+  const hasSubScores = sub_scores && Object.keys(sub_scores).length > 0
+  const calculatedScore = hasSubScores
+    ? Math.round((0.45 * tech + 0.30 * exp + 0.15 * edu + 0.10 * ml) * 10) / 10
+    : Math.round(matching_score * 10) / 10
+
+  const finalScore = Math.min(100, Math.max(0, calculatedScore))
+  const displayLabel = finalScore >= 75 ? 'Good Fit' : finalScore >= 50 ? 'Potential Fit' : 'No Fit'
+
   // Circular gauge setup
   const radius = 56
   const strokeWidth = 10
   const circumference = 2 * Math.PI * radius
   const dashOffset = animated
-    ? circumference * (1 - Math.min(100, Math.max(0, matching_score)) / 100)
+    ? circumference * (1 - Math.min(100, Math.max(0, finalScore)) / 100)
     : circumference
 
-  const isGood = compatibility_label === 'Good Fit'
-  const isPotential = compatibility_label === 'Potential Fit'
+  const isGood = displayLabel === 'Good Fit'
+  const isPotential = displayLabel === 'Potential Fit'
 
   const scoreColor = isGood ? '#16a34a' : isPotential ? '#d97706' : '#dc2626'
   const badgeClass = isGood ? 'badge-good' : isPotential ? 'badge-potential' : 'badge-nofit'
@@ -90,7 +105,7 @@ function ResultCard({ result }) {
           </svg>
           <div className="score-meter-text">
             <span className="score-number" style={{ color: scoreColor }}>
-              {matching_score.toFixed(1)}
+              {finalScore.toFixed(1)}
             </span>
             <span className="score-label-denom">/ 100 PTS</span>
           </div>
@@ -98,7 +113,7 @@ function ResultCard({ result }) {
 
         <div className={`badge-compat ${badgeClass}`}>
           {isGood ? <IconCheck size={16} /> : isPotential ? <IconZap size={16} /> : <IconX size={16} />}
-          <span>{compatibility_label}</span>
+          <span>{displayLabel}</span>
         </div>
       </div>
 
@@ -125,13 +140,13 @@ function ResultCard({ result }) {
             <div className="dim-item">
               <div className="dim-header">
                 <span>Technical Skills (45%)</span>
-                <strong style={{ color: '#0284c7' }}>{sub_scores.tech_skill_score ?? 0}%</strong>
+                <strong style={{ color: '#0284c7' }}>{Number(tech).toFixed(1)}%</strong>
               </div>
               <div className="dim-track">
                 <div
                   className="dim-fill"
                   style={{
-                    width: `${Math.min(100, sub_scores.tech_skill_score ?? 0)}%`,
+                    width: `${Math.min(100, Math.max(0, tech))}%`,
                     background: '#0284c7',
                   }}
                 />
@@ -141,13 +156,13 @@ function ResultCard({ result }) {
             <div className="dim-item">
               <div className="dim-header">
                 <span>Experience & Duties (30%)</span>
-                <strong style={{ color: '#0891b2' }}>{sub_scores.experience_score ?? 0}%</strong>
+                <strong style={{ color: '#0891b2' }}>{Number(exp).toFixed(1)}%</strong>
               </div>
               <div className="dim-track">
                 <div
                   className="dim-fill"
                   style={{
-                    width: `${Math.min(100, sub_scores.experience_score ?? 0)}%`,
+                    width: `${Math.min(100, Math.max(0, exp))}%`,
                     background: '#0891b2',
                   }}
                 />
@@ -157,13 +172,13 @@ function ResultCard({ result }) {
             <div className="dim-item">
               <div className="dim-header">
                 <span>Education & Other (15%)</span>
-                <strong style={{ color: '#7c3aed' }}>{sub_scores.other_req_score ?? 0}%</strong>
+                <strong style={{ color: '#7c3aed' }}>{Number(edu).toFixed(1)}%</strong>
               </div>
               <div className="dim-track">
                 <div
                   className="dim-fill"
                   style={{
-                    width: `${Math.min(100, sub_scores.other_req_score ?? 0)}%`,
+                    width: `${Math.min(100, Math.max(0, edu))}%`,
                     background: '#7c3aed',
                   }}
                 />
@@ -173,13 +188,13 @@ function ResultCard({ result }) {
             <div className="dim-item">
               <div className="dim-header">
                 <span>ML Model Inference (10%)</span>
-                <strong style={{ color: '#059669' }}>{sub_scores.ml_model_score ?? 0}%</strong>
+                <strong style={{ color: '#059669' }}>{Number(ml).toFixed(1)}%</strong>
               </div>
               <div className="dim-track">
                 <div
                   className="dim-fill"
                   style={{
-                    width: `${Math.min(100, sub_scores.ml_model_score ?? 0)}%`,
+                    width: `${Math.min(100, Math.max(0, ml))}%`,
                     background: '#059669',
                   }}
                 />

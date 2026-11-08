@@ -20,6 +20,7 @@ from __future__ import annotations
 import csv
 import io
 import logging
+import re
 import sys
 from contextlib import asynccontextmanager
 from pathlib import Path
@@ -126,6 +127,27 @@ app.add_middleware(
 @app.exception_handler(HTTPException)
 async def http_exception_handler(request: Request, exc: HTTPException) -> JSONResponse:
     """Format HTTPException into standardized ErrorResponse JSON."""
+    if isinstance(exc.detail, dict):
+        err_code = exc.detail.get("error_code")
+        message = exc.detail.get("message")
+        details = exc.detail.get("details", {})
+        if not err_code:
+            err_code = (
+                "INVALID_INPUT"
+                if exc.status_code == status.HTTP_400_BAD_REQUEST
+                else f"HTTP_{exc.status_code}"
+            )
+        if not message:
+            message = str(exc.detail)
+        return JSONResponse(
+            status_code=exc.status_code,
+            content=ErrorResponse(
+                error_code=err_code,
+                message=message,
+                details=details,
+            ).model_dump(),
+        )
+
     err_code = "INVALID_INPUT" if exc.status_code == status.HTTP_400_BAD_REQUEST else f"HTTP_{exc.status_code}"
     return JSONResponse(
         status_code=exc.status_code,
@@ -135,6 +157,35 @@ async def http_exception_handler(request: Request, exc: HTTPException) -> JSONRe
             details={},
         ).model_dump(),
     )
+
+
+def _validate_jd_text(jd_text: str) -> str:
+    """
+    Validate Job Description text per US-15 and US-22.
+
+    Returns stripped jd_text if valid.
+    Raises:
+      HTTPException 400: If empty or whitespace only.
+      HTTPException 422: If len(jd_text.strip()) < 30 or alphabetic word count < 5.
+    """
+    if not jd_text or not jd_text.strip():
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Job description text cannot be empty or whitespace only.",
+        )
+
+    stripped = jd_text.strip()
+    words = re.findall(r"[a-zA-Z]+", stripped)
+    if len(stripped) < 30 or len(words) < 5:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail={
+                "error_code": "INVALID_JD_CONTENT",
+                "message": "Job description is too short or invalid.",
+            },
+        )
+
+    return stripped
 
 
 @app.exception_handler(ValidationError)
@@ -362,12 +413,8 @@ async def match_cv_to_jd(
     """
     filename = pdf_file.filename or "uploaded_cv.pdf"
 
-    # US-15: Validate JD input
-    if not jd_text or not jd_text.strip():
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Job description text cannot be empty or whitespace only.",
-        )
+    # US-15 & US-22: Validate JD input
+    valid_jd_text = _validate_jd_text(jd_text)
 
     contents = _read_upload_file(pdf_file)
 
@@ -377,12 +424,12 @@ async def match_cv_to_jd(
 
     # Preprocessing
     norm_cv = normalize_text(effective_cv_text)
-    norm_jd = normalize_text(jd_text)
+    norm_jd = normalize_text(valid_jd_text)
 
     # Multi-Dimensional Structured Extraction
     extractor_service = CVExtractor()
     cv_data = extractor_service.extract_cv_structured(effective_cv_text, pdf_bytes=contents)
-    jd_data = extractor_service.extract_jd_structured(jd_text)
+    jd_data = extractor_service.extract_jd_structured(valid_jd_text)
 
     # ML Semantic Inference
     raw_ml_score, _ = _run_ml_matching(norm_cv, norm_jd)
@@ -515,15 +562,12 @@ async def compare_multiple_cvs(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="At least one CV PDF file must be provided.",
         )
-    if not jd_text or not jd_text.strip():
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Job description text cannot be empty.",
-        )
+    # US-15 & US-22: Validate JD input
+    valid_jd_text = _validate_jd_text(jd_text)
 
-    norm_jd = normalize_text(jd_text)
+    norm_jd = normalize_text(valid_jd_text)
     extractor = CVExtractor()
-    jd_data = extractor.extract_jd_structured(jd_text)
+    jd_data = extractor.extract_jd_structured(valid_jd_text)
     scorer = MultiDimensionalScorer()
 
     candidates = []

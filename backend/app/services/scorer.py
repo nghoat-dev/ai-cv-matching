@@ -93,19 +93,20 @@ def evaluate_comprehensive_match(
 
     other_req_score = (len(matched_other) / len(jd_other) * 100.0) if jd_other else 85.0
 
-    # --- 4. TỔNG HỢP ĐIỂM (0 - 100) VỚI PENALTY CAP ---
-    composite_score = (
-        0.45 * tech_coverage
-        + 0.30 * experience_total_score
-        + 0.15 * other_req_score
-        + 0.10 * ml_prob_score
+    # --- 4. TỔNG HỢP ĐIỂM (0 - 100) VỚI ĐÚNG TRỌNG SỐ TOÁN HỌC ---
+    tech_score = round(float(tech_coverage), 1)
+    exp_score = round(float(experience_total_score), 1)
+    edu_score = round(float(other_req_score), 1)
+    ml_score = round(float(ml_prob_score), 1)
+
+    final_score = round(
+        0.45 * tech_score
+        + 0.30 * exp_score
+        + 0.15 * edu_score
+        + 0.10 * ml_score,
+        1,
     )
-
-    # Penalty cap nếu thiếu kỹ năng kỹ thuật bắt buộc
-    if missing_tech:
-        composite_score = min(composite_score, 100.0 - len(missing_tech) * 3.5)
-
-    final_score = round(float(np.clip(composite_score, 0.0, 100.0)), 1)
+    final_score = round(float(np.clip(final_score, 0.0, 100.0)), 1)
     label = "Good Fit" if final_score >= 75.0 else ("Potential Fit" if final_score >= 50.0 else "No Fit")
 
     summary_str = (
@@ -115,10 +116,10 @@ def evaluate_comprehensive_match(
     )
 
     sub_scores = {
-        "tech_skill_score": round(tech_coverage, 1),
-        "experience_score": experience_total_score,
-        "other_req_score": round(other_req_score, 1),
-        "ml_model_score": round(ml_prob_score, 1),
+        "tech_skill_score": tech_score,
+        "experience_score": exp_score,
+        "other_req_score": edu_score,
+        "ml_model_score": ml_score,
     }
 
     return {
@@ -233,32 +234,29 @@ class MultiDimensionalScorer:
 
         other_req_score = (len(matched_other) / len(jd_other) * 100.0) if jd_other else 85.0
 
-        # 4. ML Model Score
+        # 4. ML Model Score & Exact Mathematical Weighted Sum (US-MultiDim)
         ml_score = round(float(np.clip(ml_model_score, 0.0, 100.0)), 1)
+        tech_score = round(float(tech_skill_score), 1)
+        exp_score = round(float(experience_score), 1)
+        edu_score = round(float(other_req_score), 1)
 
-        # Composite Multi-Dimensional Score
-        raw_composite = (
-            0.45 * tech_skill_score
-            + 0.30 * experience_score
-            + 0.15 * other_req_score
-            + 0.10 * ml_score
+        # Composite Multi-Dimensional Score: EXACT weighted sum
+        final_score = round(
+            0.45 * tech_score
+            + 0.30 * exp_score
+            + 0.15 * edu_score
+            + 0.10 * ml_score,
+            1,
         )
-
-        if missing_tech:
-            penalty_cap = 100.0 - (len(missing_tech) * 3.5)
-            final_score = min(raw_composite, penalty_cap)
-        else:
-            final_score = raw_composite
-
         final_score = round(float(np.clip(final_score, 0.0, 100.0)), 1)
         compatibility_label = (
             "Good Fit" if final_score >= 75.0 else ("Potential Fit" if final_score >= 50.0 else "No Fit")
         )
 
         sub_scores = {
-            "tech_skill_score": round(tech_skill_score, 1),
-            "experience_score": experience_score,
-            "other_req_score": round(other_req_score, 1),
+            "tech_skill_score": tech_score,
+            "experience_score": exp_score,
+            "other_req_score": edu_score,
             "ml_model_score": ml_score,
         }
 
