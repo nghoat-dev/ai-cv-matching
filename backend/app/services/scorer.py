@@ -45,16 +45,24 @@ def evaluate_comprehensive_match(
     jd_tech = set(extract_taxonomy_items(jd_text, TECH_SKILLS_TAXONOMY))
     matched_tech = sorted(list(cv_tech & jd_tech))
     missing_tech = sorted(list(jd_tech - cv_tech))
-    tech_coverage = (len(matched_tech) / len(jd_tech) * 100.0) if jd_tech else 85.0
+    if jd_tech:
+        tech_coverage = (len(matched_tech) / len(jd_tech) * 100.0)
+    elif cv_tech:
+        tech_coverage = 40.0
+    else:
+        tech_coverage = 0.0
 
     # --- 2. KINH NGHIỆM & TRÁCH NHIỆM CÔNG VIỆC (30%) ---
     cv_years = extract_experience_years(cv_text, is_jd=False)
     jd_years = extract_experience_years(jd_text, is_jd=True)
 
-    if jd_years <= 0.0 or cv_years >= jd_years:
-        years_score = 100.0
+    if jd_years > 0.0:
+        if cv_years >= jd_years:
+            years_score = 100.0
+        else:
+            years_score = max(10.0, (cv_years / jd_years) * 100.0)
     else:
-        years_score = max(20.0, (cv_years / jd_years) * 100.0)
+        years_score = 60.0 if cv_years > 0.0 else 10.0
 
     cv_exp_lines = " ".join(extract_experience_and_responsibility_lines(cv_text))
     jd_resp_lines = " ".join(extract_experience_and_responsibility_lines(jd_text))
@@ -66,9 +74,9 @@ def evaluate_comprehensive_match(
             resp_similarity_score = min(100.0, round((raw_sim / 0.35) * 100.0, 1))
         except Exception as exc:
             logger.debug("TF-IDF cosine similarity fallback: %s", exc)
-            resp_similarity_score = 60.0
+            resp_similarity_score = 20.0
     else:
-        resp_similarity_score = 60.0
+        resp_similarity_score = 0.0
 
     experience_total_score = round(0.50 * years_score + 0.50 * resp_similarity_score, 1)
 
@@ -91,7 +99,12 @@ def evaluate_comprehensive_match(
                 missing_other.remove(deg_name)
                 matched_other.append(f"{deg_name} (Satisfied by higher degree)")
 
-    other_req_score = (len(matched_other) / len(jd_other) * 100.0) if jd_other else 85.0
+    if jd_other:
+        other_req_score = (len(matched_other) / len(jd_other) * 100.0)
+    elif cv_other:
+        other_req_score = 40.0
+    else:
+        other_req_score = 0.0
 
     # --- 4. TỔNG HỢP ĐIỂM (0 - 100) VỚI ĐÚNG TRỌNG SỐ TOÁN HỌC ---
     tech_score = round(float(tech_coverage), 1)
@@ -177,26 +190,33 @@ class MultiDimensionalScorer:
             matched_tech = [s for s in jd_data.required_technical_skills if s.lower() in cv_tech_lower]
             missing_tech = [s for s in jd_data.required_technical_skills if s.lower() not in cv_tech_lower]
             tech_skill_score = min(100.0, (len(matched_tech) / len(jd_tech_lower)) * 100.0)
-        else:
+        elif cv_tech_lower:
             matched_tech = cv_data.technical_skills[:5]
             missing_tech = []
-            tech_skill_score = 100.0 if cv_data.technical_skills else 75.0
+            tech_skill_score = 40.0
+        else:
+            matched_tech = []
+            missing_tech = []
+            tech_skill_score = 0.0
 
         # 2. Experience & Role Alignment
         total_exp = cv_data.total_experience_years
         min_exp = jd_data.min_experience_years
 
-        if min_exp <= 0.0 or total_exp >= min_exp:
-            quant_exp_score = 100.0
+        if min_exp > 0.0:
+            if total_exp >= min_exp:
+                quant_exp_score = 100.0
+            else:
+                ratio = total_exp / min_exp
+                quant_exp_score = min(100.0, max(10.0, ratio * 100.0))
         else:
-            ratio = total_exp / max(1.0, min_exp)
-            quant_exp_score = min(100.0, max(20.0, ratio * 100.0))
+            quant_exp_score = 60.0 if total_exp > 0.0 else 10.0
 
         # Qualitative alignment via TF-IDF
         cv_exp_text = " ".join(cv_data.experience_descriptions) if cv_data.experience_descriptions else cv_data.raw_text
         jd_resp_text = " ".join(jd_data.job_responsibilities) if jd_data.job_responsibilities else jd_data.normalized_jd_text
 
-        role_alignment_pct = 60.0
+        role_alignment_pct = 0.0
         if cv_exp_text.strip() and jd_resp_text.strip():
             try:
                 vectorizer = TfidfVectorizer(ngram_range=(1, 2), stop_words="english", max_features=3000)
@@ -205,7 +225,7 @@ class MultiDimensionalScorer:
                 role_alignment_pct = min(100.0, max(0.0, (sim / 0.35) * 100.0))
             except Exception as exc:
                 logger.debug("TF-IDF experience cosine similarity calculation fallback: %s", exc)
-                role_alignment_pct = 50.0
+                role_alignment_pct = 20.0
 
         experience_score = round(0.50 * quant_exp_score + 0.50 * role_alignment_pct, 1)
 
@@ -232,7 +252,12 @@ class MultiDimensionalScorer:
                     missing_other.remove(deg_name)
                     matched_other.append(f"{deg_name} (Satisfied by higher degree)")
 
-        other_req_score = (len(matched_other) / len(jd_other) * 100.0) if jd_other else 85.0
+        if jd_other:
+            other_req_score = (len(matched_other) / len(jd_other) * 100.0)
+        elif cv_other:
+            other_req_score = 40.0
+        else:
+            other_req_score = 0.0
 
         # 4. ML Model Score & Exact Mathematical Weighted Sum (US-MultiDim)
         ml_score = round(float(np.clip(ml_model_score, 0.0, 100.0)), 1)
