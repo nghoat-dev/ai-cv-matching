@@ -22,7 +22,8 @@ function StatsPanel() {
     try {
       const API_BASE = import.meta.env.VITE_API_BASE_URL || ''
       const res = await fetch(`${API_BASE}/api/v1/stats`)
-      if (!res.ok) throw new Error(`HTTP Error: ${res.status}`)
+      const contentType = res.headers.get('content-type') || ''
+      if (!res.ok || contentType.includes('text/html')) throw new Error(`HTTP Error: ${res.status}`)
       const data = await res.json()
       setStats(data)
     } catch (err) {

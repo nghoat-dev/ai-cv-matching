@@ -1,4 +1,5 @@
 import React, { useState, useRef } from 'react'
+import { performRealClientSideMatch } from './MatchForm'
 import {
   IconUsers,
   IconUpload,
@@ -50,8 +51,10 @@ function CompareTab() {
       setError('Please select at least 2 CV PDF files for comparison.')
       return
     }
-    if (!jdText.trim()) {
-      setError('Please provide a Job Description to evaluate candidates against.')
+    const trimmedJd = jdText.trim()
+    const words = trimmedJd.match(/[a-zA-Z]+/g) || []
+    if (trimmedJd.length < 30 || words.length < 5) {
+      setError('Job description must contain at least 30 characters and at least 5 valid words.')
       return
     }
 
@@ -72,6 +75,13 @@ function CompareTab() {
         body: formData,
       })
 
+      const contentType = res.headers.get('content-type') || ''
+      const isHtmlResponse = contentType.includes('text/html')
+
+      if (res.status === 405 || res.status === 404 || isHtmlResponse) {
+        throw new Error('Static host API unavailable')
+      }
+
       if (!res.ok) {
         const err = await res.json().catch(() => ({}))
         throw new Error(err.message || `Server error ${res.status}`)
@@ -80,16 +90,24 @@ function CompareTab() {
       const data = await res.json()
       setCompareResults(data)
     } catch (err) {
-      // Demo ranking fallback
+      // Dynamic client-side evaluation against actual jdText and uploaded PDFs
+      const candidateEvals = await Promise.all(
+        files.map(async (file) => {
+          const match = await performRealClientSideMatch(file, jdText)
+          return {
+            filename: file.name,
+            matching_score: match.matching_score,
+            compatibility_label: match.compatibility_label,
+            matched_skills: match.matched_skills,
+            missing_skills: match.missing_skills,
+          }
+        })
+      )
+      candidateEvals.sort((a, b) => b.matching_score - a.matching_score)
       setCompareResults({
         total_candidates: files.length,
-        rankings: files.map((file, idx) => ({
-          filename: file.name,
-          matching_score: idx === 0 ? 92.4 : idx === 1 ? 71.8 : 45.0,
-          compatibility_label: idx === 0 ? 'Good Fit' : idx === 1 ? 'Potential Fit' : 'No Fit',
-          matched_skills: idx === 0 ? ['python', 'fastapi', 'docker'] : ['python', 'sql'],
-          missing_skills: idx === 0 ? ['redis'] : ['docker', 'fastapi', 'postgresql']
-        }))
+        candidates: candidateEvals,
+        rankings: candidateEvals,
       })
     } finally {
       setLoading(false)

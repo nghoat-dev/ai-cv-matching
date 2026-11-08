@@ -95,6 +95,15 @@ async function performRealClientSideMatch(file, jd) {
     matched_skills: matchedSkills,
     missing_skills: missingSkills,
     experience_match_summary: `Candidate CV (${cvYears.toFixed(1)} yrs) vs Required (${reqYears.toFixed(1)}+ yrs) | Matched ${matchedSkills.length}/${jdSkills.length} identified skills.`,
+    other_requirements_comparison: {
+      matched: hasDegree ? ['Bachelor Degree Requirement'] : [],
+      missing: requiresDegree && !hasDegree ? ['Bachelor Degree Requirement'] : [],
+      education: {
+        candidate: hasDegree ? "Bachelor's Degree / Higher" : 'Not specified',
+        required: requiresDegree ? "Bachelor's Degree" : 'Any',
+        satisfied: !requiresDegree || hasDegree
+      }
+    },
     sub_scores: {
       tech_skill_score: techScore,
       experience_score: expScore,
@@ -105,6 +114,8 @@ async function performRealClientSideMatch(file, jd) {
     llm_status: 'fallback'
   }
 }
+
+export { performRealClientSideMatch }
 
 /**
  * MatchForm — UI/UX Pro Max compliant form for CV PDF Upload & JD input.
@@ -251,6 +262,18 @@ Education: Bachelor's degree in Accounting, Finance, or CPA certification.`
         method: 'POST',
         body: formData,
       })
+
+      const contentType = res.headers.get('content-type') || ''
+      const isHtmlResponse = contentType.includes('text/html')
+
+      // Detect when backend API is not hosted / unreachable on static host (Vercel returns HTTP 405, 404, or HTML)
+      if (res.status === 405 || res.status === 404 || isHtmlResponse) {
+        console.warn(`Backend API unavailable on host (HTTP ${res.status}). Using real client-side matching engine.`)
+        const matchData = await performRealClientSideMatch(pdfFile, jdText)
+        onResult(matchData)
+        setError('')
+        return
+      }
 
       if (!res.ok) {
         const errData = await res.json().catch(() => ({}))
