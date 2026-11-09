@@ -81,6 +81,12 @@ def test_mathematical_score_consistency():
     expected_score = round(0.45 * tech + 0.30 * exp + 0.15 * edu + 0.10 * ml, 1)
     assert res["matching_score"] == expected_score
 
+    # Verify BUG 1 fix: Candidate & Required education strings are present and mapped
+    edu_info = res["other_requirements_comparison"]["education"]
+    assert edu_info["candidate"] == "Bachelor's Degree"
+    assert edu_info["required"] == "Bachelor's Degree"
+    assert edu_info["satisfied"] is True
+
     # Also test evaluate_comprehensive_match
     comp_res = evaluate_comprehensive_match(
         cv_text="Python FastAPI developer with 4 years experience. Bachelor's Degree.",

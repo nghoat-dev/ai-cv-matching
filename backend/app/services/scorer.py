@@ -120,7 +120,12 @@ def evaluate_comprehensive_match(
         1,
     )
     final_score = round(float(np.clip(final_score, 0.0, 100.0)), 1)
-    label = "Good Fit" if final_score >= 75.0 else ("Potential Fit" if final_score >= 50.0 else "No Fit")
+
+    # Domain-mismatch guardrail: unrelated CV/JD with low role alignment & low ML confidence
+    if resp_similarity_score < 15.0 and ml_score < 25.0:
+        label = "No Fit"
+    else:
+        label = "Good Fit" if final_score >= 75.0 else ("Potential Fit" if final_score >= 50.0 else "No Fit")
 
     summary_str = (
         f"CV: {cv_years:.1f} yrs vs JD: {jd_years:.1f}+ yrs | Role alignment: {int(resp_similarity_score)}%"
@@ -133,6 +138,14 @@ def evaluate_comprehensive_match(
         "experience_score": exp_score,
         "other_req_score": edu_score,
         "ml_model_score": ml_score,
+    }
+
+    rank_to_label = {
+        4: "Doctorate / PhD",
+        3: "Master's Degree",
+        2: "Bachelor's Degree",
+        1: "Associate Degree",
+        0: "Not specified",
     }
 
     return {
@@ -148,6 +161,8 @@ def evaluate_comprehensive_match(
             "matched": matched_other,
             "missing": missing_other,
             "education": {
+                "candidate": rank_to_label.get(cv_degree_rank, "Not specified"),
+                "required": "Any / Not required" if jd_degree_rank == 0 else rank_to_label.get(jd_degree_rank, "Not specified"),
                 "candidate_degree_rank": cv_degree_rank,
                 "required_degree_rank": jd_degree_rank,
                 "satisfied": degree_satisfied,
@@ -274,15 +289,28 @@ class MultiDimensionalScorer:
             1,
         )
         final_score = round(float(np.clip(final_score, 0.0, 100.0)), 1)
-        compatibility_label = (
-            "Good Fit" if final_score >= 75.0 else ("Potential Fit" if final_score >= 50.0 else "No Fit")
-        )
+
+        # Domain-mismatch guardrail: unrelated CV/JD with low role alignment & low ML confidence
+        if role_alignment_pct < 15.0 and ml_score < 25.0:
+            compatibility_label = "No Fit"
+        else:
+            compatibility_label = (
+                "Good Fit" if final_score >= 75.0 else ("Potential Fit" if final_score >= 50.0 else "No Fit")
+            )
 
         sub_scores = {
             "tech_skill_score": tech_score,
             "experience_score": exp_score,
             "other_req_score": edu_score,
             "ml_model_score": ml_score,
+        }
+
+        rank_to_label = {
+            4: "Doctorate / PhD",
+            3: "Master's Degree",
+            2: "Bachelor's Degree",
+            1: "Associate Degree",
+            0: "Not specified",
         }
 
         return {
@@ -298,6 +326,8 @@ class MultiDimensionalScorer:
                 "matched": matched_other,
                 "missing": missing_other,
                 "education": {
+                    "candidate": rank_to_label.get(cv_degree_rank, "Not specified"),
+                    "required": "Any / Not required" if jd_degree_rank == 0 else rank_to_label.get(jd_degree_rank, "Not specified"),
                     "candidate_degree_rank": cv_degree_rank,
                     "required_degree_rank": jd_degree_rank,
                     "satisfied": degree_satisfied,
