@@ -12,14 +12,74 @@ import {
 
 // Comprehensive technical taxonomy matching backend
 const TECH_TAXONOMY = [
-  'python', 'fastapi', 'flask', 'django', 'docker', 'kubernetes', 'postgresql', 'postgres',
-  'mysql', 'mongodb', 'sqlite', 'redis', 'git', 'rest api', 'restful', 'graphql',
-  'aws', 'gcp', 'azure', 'pandas', 'numpy', 'scikit-learn', 'tensorflow', 'pytorch',
-  'sql', 'powerbi', 'tableau', 'excel', 'spark', 'hadoop', 'linux', 'ci/cd', 'javascript',
-  'typescript', 'react', 'vue', 'angular', 'next.js', 'node.js', 'nodejs', 'html', 'css',
+  'python', 'fastapi', 'flask', 'django', 'docker', 'kubernetes', 'k8s', 'postgresql', 'postgres',
+  'mysql', 'mongodb', 'sqlite', 'redis', 'git', 'github', 'gitlab', 'rest api', 'restful', 'graphql',
+  'aws', 'gcp', 'azure', 'pandas', 'numpy', 'scikit-learn', 'sklearn', 'tensorflow', 'pytorch',
+  'sql', 'power bi', 'powerbi', 'tableau', 'excel', 'spark', 'hadoop', 'linux', 'ubuntu', 'ci/cd',
+  'javascript', 'typescript', 'react', 'vue', 'angular', 'next.js', 'node.js', 'nodejs', 'html', 'css',
   'c++', 'c#', 'java', 'golang', 'rust', 'gaap', 'quickbooks', 'tax audit', 'accounting',
-  'financial reporting', 'statistics', 'machine learning', 'deep learning', 'nlp', 'computer vision'
+  'financial reporting', 'statistics', 'machine learning', 'deep learning', 'nlp', 'computer vision',
+  'opencv', 'transformers', 'spring boot', 'laravel', 'php'
 ]
+
+/**
+ * Extract full text from PDF file using Mozilla pdf.js.
+ * Capable of extracting text from CID-keyed, ToUnicode, and FlateDecode compressed streams.
+ * Falls back to UTF-8 buffer decoding if pdf.js is not yet available.
+ */
+async function extractPdfText(file) {
+  if (!file) return ''
+
+  // Wait briefly for window.pdfjsLib if CDN script is still initializing
+  let pdfjs = typeof window !== 'undefined' ? window.pdfjsLib : null
+  if (!pdfjs && typeof window !== 'undefined') {
+    for (let i = 0; i < 20; i++) {
+      if (window.pdfjsLib) {
+        pdfjs = window.pdfjsLib
+        break
+      }
+      await new Promise((r) => setTimeout(r, 100))
+    }
+  }
+
+  if (pdfjs) {
+    try {
+      const arrayBuffer = await file.arrayBuffer()
+      const loadingTask = pdfjs.getDocument({
+        data: new Uint8Array(arrayBuffer),
+        useSystemFonts: true,
+      })
+      const pdfDoc = await loadingTask.promise
+      const pagePromises = []
+
+      for (let pageNum = 1; pageNum <= pdfDoc.numPages; pageNum++) {
+        pagePromises.push(
+          pdfDoc.getPage(pageNum).then(async (page) => {
+            const content = await page.getTextContent()
+            return content.items.map((item) => item.str || '').join(' ')
+          })
+        )
+      }
+
+      const pages = await Promise.all(pagePromises)
+      const fullText = pages.join('\n').trim()
+      if (fullText.length > 0) {
+        return fullText
+      }
+    } catch (err) {
+      console.warn('pdf.js extraction failed, falling back to raw decode:', err)
+    }
+  }
+
+  // Fallback: UTF-8 stream decoding
+  try {
+    const buffer = await file.arrayBuffer()
+    const decoder = new TextDecoder('utf-8', { fatal: false })
+    return decoder.decode(buffer)
+  } catch (err) {
+    return ''
+  }
+}
 
 /**
  * Perform real client-side text extraction & matching against actual jdText and CV file.
@@ -37,18 +97,9 @@ async function performRealClientSideMatch(file, jd) {
     return regex.test(jdLower)
   })
 
-  // 2. Extract CV text from uploaded PDF file
-  let cvText = (file?.name || '').toLowerCase()
-  if (file) {
-    try {
-      const buffer = await file.arrayBuffer()
-      const decoder = new TextDecoder('utf-8', { fatal: false })
-      const decoded = decoder.decode(buffer)
-      cvText += ' ' + decoded.toLowerCase()
-    } catch (e) {
-      // fallback to filename
-    }
-  }
+  // 2. Extract CV text from uploaded PDF file using Mozilla pdf.js
+  const extractedPdfText = await extractPdfText(file)
+  const cvText = ((file?.name || '') + ' ' + (extractedPdfText || '')).toLowerCase()
 
   // 3. Extract CV skills
   const cvSkills = TECH_TAXONOMY.filter((skill) => {
@@ -71,23 +122,31 @@ async function performRealClientSideMatch(file, jd) {
   const reqYears = jdExpMatch ? parseFloat(jdExpMatch[1]) : 2.0
   const cvExpMatch = cvText.match(/(\d+(?:\.\d+)?)\+?\s*years?/i)
   const cvYears = cvExpMatch ? parseFloat(cvExpMatch[1]) : (cvSkills.length >= 4 ? 3.5 : 1.0)
-  const expScore = cvYears >= reqYears
+  let expScore = cvYears >= reqYears
     ? 90.0
     : Math.max(10.0, Math.round((cvYears / reqYears) * 800) / 10)
 
   // 7. Education / Other Requirements score (15%)
   const requiresDegree = /bachelor|master|degree|phd/i.test(jdLower)
-  const hasDegree = /bachelor|master|degree|university|b\.s|m\.s/i.test(cvText)
+  const hasDegree = /bachelor|master|degree|university|b\.s|m\.s|đại học|cử nhân|thạc sĩ|kỹ sư/i.test(cvText)
   const eduScore = requiresDegree ? (hasDegree ? 90.0 : 40.0) : 80.0
 
   // 8. ML Model score (10%)
   const mlScore = Math.round((0.55 * techScore + 0.45 * expScore) * 10) / 10
 
+  // Domain mismatch penalty if CV is completely unrelated (role alignment < 15% and mlScore < 25%)
+  const roleAlignmentPct = jdSkills.length > 0 ? (matchedSkills.length / jdSkills.length) * 100 : 50.0
+  if (roleAlignmentPct < 15.0 && mlScore < 25.0) {
+    expScore = Math.min(expScore, 35.0)
+  }
+
   // 9. Exact weighted sum formula: round(0.45 * tech + 0.30 * exp + 0.15 * edu + 0.10 * ml, 1)
   const finalScore = Math.round(
     (0.45 * techScore + 0.30 * expScore + 0.15 * eduScore + 0.10 * mlScore) * 10
   ) / 10
-  const label = finalScore >= 75.0 ? 'Good Fit' : finalScore >= 50.0 ? 'Potential Fit' : 'No Fit'
+  const label = (roleAlignmentPct < 15.0 && mlScore < 25.0)
+    ? 'No Fit'
+    : (finalScore >= 75.0 ? 'Good Fit' : finalScore >= 50.0 ? 'Potential Fit' : 'No Fit')
 
   return {
     matching_score: finalScore,
@@ -100,7 +159,9 @@ async function performRealClientSideMatch(file, jd) {
       missing: requiresDegree && !hasDegree ? ['Bachelor Degree Requirement'] : [],
       education: {
         candidate: hasDegree ? "Bachelor's Degree / Higher" : 'Not specified',
-        required: requiresDegree ? "Bachelor's Degree" : 'Any',
+        required: requiresDegree ? "Bachelor's Degree" : 'Any / Not required',
+        candidate_degree_rank: hasDegree ? 2 : 0,
+        required_degree_rank: requiresDegree ? 2 : 0,
         satisfied: !requiresDegree || hasDegree
       }
     },
@@ -115,7 +176,7 @@ async function performRealClientSideMatch(file, jd) {
   }
 }
 
-export { performRealClientSideMatch }
+export { performRealClientSideMatch, extractPdfText }
 
 /**
  * MatchForm — UI/UX Pro Max compliant form for CV PDF Upload & JD input.
