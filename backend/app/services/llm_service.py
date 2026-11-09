@@ -79,6 +79,9 @@ class LLMService:
         cv_text: str,
         jd_text: str,
         matching_score: float,
+        matched_skills: list[str] | None = None,
+        missing_skills: list[str] | None = None,
+        exp_summary: str | None = None,
     ) -> dict[str, Any]:
         """Generate a natural-language explanation for the matching result.
 
@@ -86,15 +89,33 @@ class LLMService:
             cv_text:        Raw text extracted from the candidate's CV.
             jd_text:        Original job description text.
             matching_score: Computed matching score (0–100).
+            matched_skills: Matched technical skills list.
+            missing_skills: Missing technical skills list.
+            exp_summary:    Experience summary string.
 
         Returns:
             A dict with keys:
               - ``explanation`` (str): Human-readable analysis.
               - ``status`` (str): ``"success"`` or ``"fallback"``.
         """
+        matched_str = ", ".join(matched_skills) if matched_skills else "None detected"
+        missing_str = ", ".join(missing_skills) if missing_skills else "No critical skill gaps identified"
+        verdict = "Good Fit" if matching_score >= 75.0 else ("Potential Fit" if matching_score >= 50.0 else "No Fit")
+        fallback_analysis = (
+            f"LLM service unavailable. ML-based analysis provided.\n"
+            f"• Overall Verdict ({matching_score:.1f}/100 — {verdict}): {exp_summary or 'Evaluated via 4-dimensional scoring engine.'}\n"
+            f"• Verified Technical Strengths: {matched_str}.\n"
+            f"• Skill Gaps & Actionable Advice: "
+            + (
+                f"Candidate should strengthen or highlight experience in {missing_str} to improve alignment."
+                if missing_skills
+                else "All explicit technical skills in the JD are covered; verify practical project depth during interview."
+            )
+        )
+
         if not self.api_key:
             logger.warning("LLM_API_KEY not set – returning fallback explanation.")
-            return {"explanation": _FALLBACK_MESSAGE, "status": "fallback"}
+            return {"explanation": fallback_analysis, "status": "fallback"}
 
         prompt = self._build_prompt(cv_text, jd_text, matching_score)
 
@@ -131,7 +152,7 @@ class LLMService:
 
             except _MalformedOutputError as exc:
                 logger.warning("LLM returned malformed output: %s", exc)
-                return {"explanation": _FALLBACK_MESSAGE, "status": "fallback"}
+                return {"explanation": fallback_analysis, "status": "fallback"}
 
             except Exception as exc:  # pylint: disable=broad-except
                 logger.error("Unexpected LLM error: %s", exc, exc_info=True)
@@ -141,7 +162,7 @@ class LLMService:
                 }
 
         # Should never be reached, but satisfy the type checker
-        return {"explanation": _FALLBACK_MESSAGE, "status": "fallback"}
+        return {"explanation": fallback_analysis, "status": "fallback"}
 
     def extract_cv_with_llm(self, cv_text: str) -> dict[str, Any] | None:
         """Extract multi-dimensional CV data using LLM structured JSON output.

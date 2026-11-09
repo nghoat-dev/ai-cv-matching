@@ -412,14 +412,13 @@ async def match_cv_to_jd(
     5. Generate LLM explanation and persist to database.
     """
     filename = pdf_file.filename or "uploaded_cv.pdf"
-
-    # US-15 & US-22: Validate JD input
-    valid_jd_text = _validate_jd_text(jd_text)
-
     contents = _read_upload_file(pdf_file)
 
     # US-14: Validate & extract PDF
     raw_cv_text = _validate_and_extract_pdf(contents, filename)
+
+    # US-15 & US-22: Validate JD input
+    valid_jd_text = _validate_jd_text(jd_text)
     effective_cv_text = raw_cv_text if raw_cv_text else f"Candidate Resume: {filename}"
 
     # Preprocessing
@@ -448,7 +447,14 @@ async def match_cv_to_jd(
 
     # LLM Explanation (with fallback)
     llm_service = LLMService()
-    llm_res = llm_service.generate_explanation(effective_cv_text, jd_text, matching_score)
+    llm_res = llm_service.generate_explanation(
+        effective_cv_text,
+        jd_text,
+        matching_score,
+        matched_skills=matched,
+        missing_skills=missing,
+        exp_summary=exp_summary,
+    )
 
     # Persist to database (US-20)
     try:

@@ -121,12 +121,6 @@ def evaluate_comprehensive_match(
     )
     final_score = round(float(np.clip(final_score, 0.0, 100.0)), 1)
 
-    # Domain-mismatch guardrail: unrelated CV/JD with low role alignment & low ML confidence
-    if resp_similarity_score < 15.0 and ml_score < 25.0:
-        label = "No Fit"
-    else:
-        label = "Good Fit" if final_score >= 75.0 else ("Potential Fit" if final_score >= 50.0 else "No Fit")
-
     summary_str = (
         f"CV: {cv_years:.1f} yrs vs JD: {jd_years:.1f}+ yrs | Role alignment: {int(resp_similarity_score)}%"
         if jd_years > 0.0
@@ -139,6 +133,19 @@ def evaluate_comprehensive_match(
         "other_req_score": edu_score,
         "ml_model_score": ml_score,
     }
+
+    # Domain-mismatch guardrail: unrelated CV/JD with low role alignment & low ML confidence
+    if resp_similarity_score < 15.0 and ml_score < 25.0:
+        exp_score = round(min(exp_score, 35.0), 1)
+        sub_scores["experience_score"] = exp_score
+        final_score = round(
+            0.45 * tech_score + 0.30 * exp_score + 0.15 * edu_score + 0.10 * ml_score,
+            1,
+        )
+        final_score = round(float(np.clip(final_score, 0.0, 100.0)), 1)
+        label = "No Fit"
+    else:
+        label = "Good Fit" if final_score >= 75.0 else ("Potential Fit" if final_score >= 50.0 else "No Fit")
 
     rank_to_label = {
         4: "Doctorate / PhD",
@@ -290,20 +297,27 @@ class MultiDimensionalScorer:
         )
         final_score = round(float(np.clip(final_score, 0.0, 100.0)), 1)
 
-        # Domain-mismatch guardrail: unrelated CV/JD with low role alignment & low ML confidence
-        if role_alignment_pct < 15.0 and ml_score < 25.0:
-            compatibility_label = "No Fit"
-        else:
-            compatibility_label = (
-                "Good Fit" if final_score >= 75.0 else ("Potential Fit" if final_score >= 50.0 else "No Fit")
-            )
-
         sub_scores = {
             "tech_skill_score": tech_score,
             "experience_score": exp_score,
             "other_req_score": edu_score,
             "ml_model_score": ml_score,
         }
+
+        # Domain-mismatch guardrail: unrelated CV/JD with low role alignment & low ML confidence
+        if role_alignment_pct < 15.0 and ml_score < 25.0:
+            exp_score = round(min(exp_score, 35.0), 1)
+            sub_scores["experience_score"] = exp_score
+            final_score = round(
+                0.45 * tech_score + 0.30 * exp_score + 0.15 * edu_score + 0.10 * ml_score,
+                1,
+            )
+            final_score = round(float(np.clip(final_score, 0.0, 100.0)), 1)
+            compatibility_label = "No Fit"
+        else:
+            compatibility_label = (
+                "Good Fit" if final_score >= 75.0 else ("Potential Fit" if final_score >= 50.0 else "No Fit")
+            )
 
         rank_to_label = {
             4: "Doctorate / PhD",
